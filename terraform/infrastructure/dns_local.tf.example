@@ -1,0 +1,79 @@
+
+# =============================================================================
+# LOCAL/ORG-SPECIFIC DNS RECORDS (TEMPLATE)
+# =============================================================================
+# Copy this file to dns_local.tf and customize for your deployment.
+#
+# This file is for:
+# - Root domain A records (if pointing to external service like Squarespace)
+# - Email provider configuration (MX, SPF, DKIM, DMARC)
+# - Domain verification records (Google, Atlassian, etc.)
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# ROOT DOMAIN RECORDS
+# -----------------------------------------------------------------------------
+# If your root domain points to an external service (Squarespace, Netlify, etc.)
+# add the A records here. Get the IPs from your hosting provider.
+
+# resource "scaleway_domain_record" "root_a_1" {
+#   dns_zone = scaleway_domain_zone.main.id
+#   name     = ""
+#   type     = "A"
+#   data     = "198.185.159.144"  # Example: Squarespace IP
+#   ttl      = 3600
+# }
+
+
+# -----------------------------------------------------------------------------
+# EMAIL CONFIGURATION
+# -----------------------------------------------------------------------------
+# Configure your email provider's DNS records here.
+# Common providers: ProtonMail, Google Workspace, Microsoft 365
+
+# --- MX Records ---
+# resource "scaleway_domain_record" "mx_1" {
+#   dns_zone = scaleway_domain_zone.main.id
+#   name     = "@"
+#   type     = "MX"
+#   data     = "mail.protonmail.ch."
+#   priority = 10
+#   ttl      = 3600
+# }
+
+# --- SPF Record ---
+# resource "scaleway_domain_record" "spf" {
+#   dns_zone = scaleway_domain_zone.main.id
+#   name     = ""
+#   type     = "TXT"
+#   data     = "v=spf1 include:_spf.tem.scaleway.com include:_spf.protonmail.ch -all"
+#   ttl      = 3600
+# }
+
+# --- DMARC Record ---
+# resource "scaleway_domain_record" "dmarc" {
+#   dns_zone = scaleway_domain_zone.main.id
+#   name     = "_dmarc"
+#   type     = "TXT"
+#   data     = "v=DMARC1; p=none"
+#   ttl      = 3600
+# }
+
+# --- DKIM Records ---
+# Add your email provider's DKIM records here.
+# These are unique to each domain and provider.
+
+
+# -----------------------------------------------------------------------------
+# DOMAIN VERIFICATION RECORDS
+# -----------------------------------------------------------------------------
+# Add domain ownership verification records for external services.
+
+# resource "scaleway_domain_record" "google_verification" {
+#   dns_zone = scaleway_domain_zone.main.id
+#   name     = "@"
+#   type     = "TXT"
+#   data     = "google-site-verification=YOUR_VERIFICATION_CODE"
+#   ttl      = 3600
+# }

@@ -1,0 +1,29 @@
+
+# =============================================================================
+# LOCAL/ORG-SPECIFIC BRANDING OVERRIDES (TEMPLATE)
+# =============================================================================
+# Copy this file to brand_local.tf to document your branding customizations.
+#
+# The main brand resource is in brand.tf. To customize branding:
+#
+# Option 1: Upload custom assets
+#   Upload your logo, favicon, and background to Authentik with filenames:
+#   - logo.png (or your preferred name)
+#   - favicon.png
+#   - background.jpg
+#   Then update brand.tf with your filenames.
+#
+# Option 2: Use Authentik web UI
+#   Go to System > Brands and customize branding there.
+#   Note: Terraform may overwrite web UI changes on next apply.
+#
+# Option 3: Modify brand.tf directly
+#   Change the branding_* attributes in brand.tf to your values.
+# =============================================================================
+
+# Document your branding choices here for reference:
+#
+# Logo: my-org-logo.png (uploaded to Authentik media)
+# Favicon: my-org-favicon.png
+# Background: my-org-background.jpg
+# Title: "My Org Gateway" (derived from org_name in project.yml)

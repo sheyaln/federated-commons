@@ -1,0 +1,11 @@
+# Traefik Dynamic Configuration
+# TLS options and other dynamic settings
+
+tls:
+  options:
+    # WebSocket TLS option - forces HTTP/1.1 by excluding h2 from ALPN
+    # Required for services that need WebSocket upgrades (Talk signaling, etc.)
+    # HTTP/2 strips Connection: Upgrade header, breaking WebSocket handshake
+    websocket:
+      alpnProtocols:
+        - http/1.1

@@ -1,0 +1,78 @@
+{
+  "modno": 1,
+  "version": 5,
+  "instance": "{{ project_name | default('commons') }}-management",
+  "auth": {
+    "disabled": true
+  },
+  "repos": [
+    {
+      "id": "s3-backup",
+      "uri": "s3:{{ backrest_s3_endpoint | regex_replace('^https://', '') }}/{{ backrest_s3_bucket }}",
+      "password": "{{ backrest_restic_password }}",
+      "env": [
+        "AWS_ACCESS_KEY_ID={{ backrest_s3_access_key }}",
+        "AWS_SECRET_ACCESS_KEY={{ backrest_s3_secret_key }}"
+      ],
+      "flags": ["--verbose"],
+      "autoUnlock": true,
+      "autoInitialize": true,
+      "prunePolicy": {
+        "schedule": { "maxFrequencyDays": 7 }
+      },
+      "checkPolicy": {
+        "schedule": { "maxFrequencyDays": 30 },
+        "readDataSubsetPercent": 5
+      }
+    }
+  ],
+  "plans": [
+    {
+      "id": "management-volumes",
+      "repo": "s3-backup",
+      "paths": ["/backup-sources/docker-volumes"],
+      "excludes": ["**/backrest/**"],
+      "schedule": { "cron": "0 3 * * *" },
+      "retention": {
+        "policyTimeBucketed": {
+          "daily": 7, "weekly": 4, "monthly": 6, "keepLastN": 3
+        }
+      }
+    },
+    {
+      "id": "management-apps",
+      "repo": "s3-backup",
+      "paths": ["/backup-sources/opt"],
+      "excludes": ["**/backrest/**"],
+      "schedule": { "cron": "0 3 * * *" },
+      "retention": {
+        "policyTimeBucketed": {
+          "daily": 7, "weekly": 4, "monthly": 6, "keepLastN": 3
+        }
+      }
+    }{% for server in backrest_remote_servers | default([]) %},
+    {
+      "id": "{{ server.name }}-volumes",
+      "repo": "s3-backup",
+      "paths": ["/backup-sources/{{ server.name }}/docker-volumes"],
+      "schedule": { "cron": "0 {{ 4 + loop.index0 }} * * *" },
+      "retention": {
+        "policyTimeBucketed": {
+          "daily": 7, "weekly": 4, "monthly": 6, "keepLastN": 3
+        }
+      }
+    },
+    {
+      "id": "{{ server.name }}-apps",
+      "repo": "s3-backup",
+      "paths": ["/backup-sources/{{ server.name }}/opt"],
+      "schedule": { "cron": "0 {{ 4 + loop.index0 }} * * *" },
+      "retention": {
+        "policyTimeBucketed": {
+          "daily": 7, "weekly": 4, "monthly": 6, "keepLastN": 3
+        }
+      }
+    }{% endfor %}
+
+  ]
+}

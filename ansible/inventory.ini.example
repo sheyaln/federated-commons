@@ -1,0 +1,24 @@
+
+# Federated Commons - Ansible Inventory Example
+#
+# Copy this file to inventory.ini and update with your server IPs:
+#   cp inventory.ini.example inventory.ini
+#
+# Replace the example IPs (192.0.2.x - RFC 5737 documentation range)
+# with your actual server IP addresses.
+
+[management]
+192.0.2.10 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+[tools-prod]
+192.0.2.20 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+[authentik-prod]
+192.0.2.30 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+[staging]
+# Uncomment and add staging server IP when needed
+# 192.0.2.40 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_ed25519
+
+[dev]
+localhost ansible_connection=local

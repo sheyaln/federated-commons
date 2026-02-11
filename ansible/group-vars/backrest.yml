@@ -1,0 +1,29 @@
+# Backrest Configuration
+#
+# S3 credentials -- populate these from your secret manager or vault.
+# Example using Scaleway Secret Manager:
+#   backrest_s3_access_key: "{{ _backrest_s3_credentials.access_key }}"
+#   backrest_s3_secret_key: "{{ _backrest_s3_credentials.secret_key }}"
+#   backrest_s3_bucket: "{{ _backrest_s3_credentials.bucket_name }}"
+#   backrest_s3_endpoint: "{{ _backrest_s3_credentials.endpoint }}"
+
+backrest_s3_access_key: "CHANGE_ME"
+backrest_s3_secret_key: "CHANGE_ME"
+backrest_s3_bucket: "backups"
+backrest_s3_endpoint: "https://s3.fr-par.scw.cloud"
+
+# Restic repository encryption password
+backrest_restic_password: "CHANGE_ME"
+
+# SSH private key for SFTP access to remote servers (for SSHFS mounts)
+backrest_ssh_private_key: "CHANGE_ME"
+
+# Remote servers to back up via SSHFS.
+# Each entry needs a name (used for volume naming) and ip (inventory hostname).
+# Example:
+#   backrest_remote_servers:
+#     - name: tools-prod
+#       ip: "{{ groups['tools-prod'][0] }}"
+#     - name: authentik-prod
+#       ip: "{{ groups['authentik-prod'][0] }}"
+backrest_remote_servers: []

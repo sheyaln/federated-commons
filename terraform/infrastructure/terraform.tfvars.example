@@ -1,0 +1,57 @@
+# Federated Commons - Scaleway Infrastructure Terraform Configuration
+# Copy this file to terraform.tfvars and fill in your values
+# DO NOT commit terraform.tfvars to version control
+
+#############################
+# Scaleway Credentials
+#############################
+# Create at: https://console.scaleway.com/iam/api-keys
+access_key = "SCWxxxxxxxxxxxxxxxxxx"
+secret_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+region     = "fr-par"
+project_id = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+#############################
+# Database Configuration
+#############################
+# PostgreSQL admin credentials (auto-generated user passwords stored in Secret Manager)
+psql_user     = "your-project-admin"
+psql_password = "your-secure-password-here"
+
+#############################
+# Server Configuration
+#############################
+# Production tools server (always created)
+# Hosts: Decidim, Outline, EspoCRM, Nextcloud, etc.
+prod_type = "DEV1-L"  # 4 vCPU, 8GB RAM, 80GB SSD
+
+# Authentik SSO server
+create_authentik = true
+authentik_type   = "DEV1-M"  # 3 vCPU, 4GB RAM, 40GB SSD
+
+# Management server (Grafana, Prometheus, Loki, Zabbix)
+create_management = true
+management_type   = "DEV1-M"  # 3 vCPU, 4GB RAM, 40GB SSD
+# management_ip   = "x.x.x.x/32"  # Set after management server is created for security group rules
+
+# Staging server (optional, for testing)
+create_staging = false
+staging_type   = "DEV1-M"
+
+#############################
+# Kubernetes (Optional)
+#############################
+# Enable if you want a managed Kubernetes cluster
+create_kubernetes = false
+k8s_node_type     = "DEV1-M"
+k8s_pool_size     = 3
+k8s_pool_min_size = 1
+k8s_pool_max_size = 6
+
+#############################
+# Instance Types Reference
+#############################
+# DEV1-S:  2 vCPU,  2GB RAM, 20GB SSD - ~3 EUR/mo
+# DEV1-M:  3 vCPU,  4GB RAM, 40GB SSD - ~8 EUR/mo
+# DEV1-L:  4 vCPU,  8GB RAM, 80GB SSD - ~15 EUR/mo
+# DEV1-XL: 4 vCPU, 12GB RAM, 120GB SSD - ~23 EUR/mo

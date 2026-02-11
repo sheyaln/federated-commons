@@ -1,0 +1,70 @@
+x-logging: &default-logging
+  driver: "json-file"
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  backrest:
+    image: garethgeorge/backrest:latest
+    container_name: backrest
+    hostname: backrest
+    restart: unless-stopped
+    volumes:
+      - ./data:/data
+      - ./config:/config
+      - ./cache:/cache
+      # Management server local mounts
+      - /var/lib/docker/volumes:/backup-sources/docker-volumes:ro
+      - /opt:/backup-sources/opt:ro
+{% for server in backrest_remote_servers | default([]) %}
+      # Remote server: {{ server.name }}
+      - sshfs-{{ server.name }}-volumes:/backup-sources/{{ server.name }}/docker-volumes:ro
+      - sshfs-{{ server.name }}-opt:/backup-sources/{{ server.name }}/opt:ro
+{% endfor %}
+    env_file: .env
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backrest.rule=Host(`backrest.{{ management_domain }}`)"
+      - "traefik.http.routers.backrest.entrypoints=websecure"
+      - "traefik.http.routers.backrest.tls.certresolver=le"
+      - "traefik.http.routers.backrest.middlewares=authentik-auth@docker"
+      - "traefik.http.services.backrest.loadbalancer.server.port=9898"
+      - "traefik.docker.network=traefik"
+      - "com.centurylinklabs.watchtower.enable=false"
+    security_opt:
+      - no-new-privileges:true
+    logging: *default-logging
+
+networks:
+  traefik:
+    external: true
+
+# SSHFS volumes for remote server backup via SSH key
+volumes:
+{% for server in backrest_remote_servers | default([]) %}
+  sshfs-{{ server.name }}-volumes:
+    driver: vieux/sshfs
+    driver_opts:
+      sshcmd: "ubuntu@{{ server.ip }}:/var/lib/docker/volumes"
+      IdentityFile: "/root/.ssh/backrest_ed25519"
+      allow_other: ""
+      reconnect: ""
+      StrictHostKeyChecking: "no"
+      ServerAliveInterval: "15"
+      ServerAliveCountMax: "3"
+
+  sshfs-{{ server.name }}-opt:
+    driver: vieux/sshfs
+    driver_opts:
+      sshcmd: "ubuntu@{{ server.ip }}:/opt"
+      IdentityFile: "/root/.ssh/backrest_ed25519"
+      allow_other: ""
+      reconnect: ""
+      StrictHostKeyChecking: "no"
+      ServerAliveInterval: "15"
+      ServerAliveCountMax: "3"
+
+{% endfor %}

@@ -1,0 +1,78 @@
+---
+# Main tasks for Authentik role
+# Updated for Authentik 2025.12 storage structure (/data/media pattern)
+
+- name: Ensure Authentik networks exist
+  community.docker.docker_network:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - "{{ authentik_network_name }}"
+    - "traefik"
+
+- name: Ensure Authentik directory
+  ansible.builtin.file:
+    path: "{{ authentik_dir }}"
+    state: directory
+    mode: '0755'
+
+# New 2025.12 storage structure: /data is the main mount point
+# Files are stored in /data/media (served at /files prefix)
+- name: Ensure Authentik subdirectories (2025.12+ structure)
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - "{{ authentik_dir }}/data"
+    - "{{ authentik_dir }}/data/media"
+    - "{{ authentik_dir }}/data/media/custom-assets"
+    - "{{ authentik_dir }}/data/media/application-icons"
+    - "{{ authentik_dir }}/custom-templates"
+    - "{{ authentik_dir }}/certs"
+
+# Copy branding assets
+- name: Copy Authentik assets for branding
+  ansible.builtin.copy:
+    src: custom-assets/
+    dest: "{{ authentik_dir }}/data/media/custom-assets/"
+    mode: '0644'
+
+# Copy application icons to new location
+- name: Copy application icons
+  ansible.builtin.copy:
+    src: application-icons/
+    dest: "{{ authentik_dir }}/data/media/application-icons/"
+    mode: '0644'
+
+- name: Copy docker-compose file
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: "{{ authentik_dir }}/docker-compose.yml"
+    mode: '0644'
+  register: compose_file
+
+- name: Render environment file
+  ansible.builtin.template:
+    src: env.j2
+    dest: "{{ authentik_dir }}/.env"
+    mode: '0600'
+  register: env_file
+
+- name: Start Authentik using Docker Compose
+  community.docker.docker_compose_v2:
+    project_src: "{{ authentik_dir }}"
+    state: present
+    pull: "{{ 'always' if compose_file.changed or env_file.changed else 'missing' }}"
+  register: authentik_compose
+
+- name: Wait for Authentik server to be healthy
+  ansible.builtin.uri:
+    url: "http://127.0.0.1:9000/api/v3/root/config/"
+    method: GET
+    status_code: 200
+  register: healthcheck
+  until: healthcheck.status == 200
+  retries: 30
+  delay: 10
+  when: authentik_compose.changed

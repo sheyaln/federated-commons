@@ -1,0 +1,18 @@
+# Jitsi Meet Credentials
+#
+# Populate these from your secret manager or vault.
+# Example using Scaleway Secret Manager:
+#   JITSI_JWT_APP_SECRET: "{{ lookup('scaleway.scaleway.scaleway_secret', 'jitsi-jwt-app-secret') | b64decode }}"
+
+# JWT Secret
+JITSI_JWT_APP_SECRET: "CHANGE_ME"
+
+# XMPP Authentication Passwords
+JITSI_JICOFO_AUTH_PASSWORD: "CHANGE_ME"
+JITSI_JVB_AUTH_PASSWORD: "CHANGE_ME"
+JITSI_JIBRI_XMPP_PASSWORD: "CHANGE_ME"
+JITSI_JIBRI_RECORDER_PASSWORD: "CHANGE_ME"
+
+# Authentik OIDC Configuration
+JITSI_OIDC_CLIENT_ID: "CHANGE_ME"
+JITSI_OIDC_CLIENT_SECRET: "CHANGE_ME"

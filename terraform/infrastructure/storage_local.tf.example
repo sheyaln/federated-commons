@@ -1,0 +1,90 @@
+
+# =============================================================================
+# LOCAL/ORG-SPECIFIC STORAGE CONFIGURATION (TEMPLATE)
+# =============================================================================
+# Copy this file to storage_local.tf and customize for your deployment.
+#
+# This file defines:
+# - Object storage buckets (for app data, Traefik certificates, etc.)
+# - PostgreSQL database instance and databases
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# OBJECT STORAGE BUCKETS
+# -----------------------------------------------------------------------------
+# Bucket names must be globally unique. Use your org prefix.
+
+# module "appdata_bucket" {
+#   source = "./modules/storage/object_bucket"
+#
+#   name = "myorg-appdata-prod-0"
+#   acl  = "public-read"
+#   tags = {
+#     env  = "prod"
+#     role = "appdata"
+#   }
+#   cors_rules = [
+#     {
+#       allowed_headers = ["*"]
+#       allowed_methods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
+#       allowed_origins = ["https://wiki.example.org"]  # Your wiki domain
+#       expose_headers  = ["ETag", "Content-Length", "Content-Type"]
+#       max_age_seconds = 3600
+#     }
+#   ]
+# }
+
+# module "traefik_acme_bucket" {
+#   source = "./modules/storage/object_bucket"
+#
+#   name = "myorg-traefik-acme-prod-0"
+#   tags = {
+#     env  = "prod"
+#     role = "traefik-acme"
+#   }
+# }
+
+
+# -----------------------------------------------------------------------------
+# POSTGRESQL DATABASE
+# -----------------------------------------------------------------------------
+# Managed PostgreSQL instance with per-app databases.
+# Credentials are auto-stored in Scaleway Secret Manager.
+
+# module "postgres_db" {
+#   source = "./modules/storage/postgres"
+#
+#   instance_name     = "myorg-postgres-prod"
+#   database_engine   = "PostgreSQL-16"
+#   psql_default_user = "myorg-admin"
+#
+#   high_availability         = false
+#   backup_same_region        = true
+#   backup_schedule_frequency = 24
+#   backup_schedule_retention = 3
+#
+#   volume_size_in_gb = 10
+#   max_connections   = 200
+#
+#   # List all databases your apps need
+#   databases = [
+#     "outline",
+#     "authentik",
+#     "nextcloud",
+#     "onlyoffice",
+#     "decidim",
+#     "n8n",
+#     "espocrm",
+#     "vikunja",
+#   ]
+#
+#   network = {
+#     enable_ipam = true
+#     ip_net      = "10.0.0.0/22"
+#     pn_id       = scaleway_vpc_private_network.network.id
+#     port        = 5432
+#   }
+#
+#   tags = ["postgres", "prod"]
+# }

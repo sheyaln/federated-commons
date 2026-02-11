@@ -1,0 +1,52 @@
+# Federated Commons - Authentik Terraform Configuration
+# Copy this file to terraform.tfvars and fill in your values
+# DO NOT commit terraform.tfvars to version control
+
+#############################
+# Scaleway Credentials
+#############################
+scaleway_access_key = "SCWxxxxxxxxxxxxxxxxxx"
+scaleway_secret_key = "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+
+#############################
+# Authentik Configuration
+#############################
+# API token from Authentik: Admin > Directory > Tokens and App passwords
+# The Authentik URL is derived automatically from config/project.yml (gateway.{tools_domain})
+authentik_token = "your-authentik-api-token"
+
+#############################
+# Organisation Configuration
+#############################
+# These values customize Authentik for your organization
+domain            = "example.org"
+organisation_name = "My Organization"
+organisation_slug = "my-org"
+
+#############################
+# SMTP Configuration
+#############################
+# Email settings for password resets, notifications, etc.
+smtp_host     = "smtp.example.com"
+smtp_port     = "587"
+smtp_ssl_port = "465"
+smtp_username = "your-smtp-username"
+smtp_password = "your-smtp-password"
+
+#############################
+# Social Login - Google
+#############################
+# Create at: https://console.cloud.google.com/apis/credentials
+# Redirect URI: https://gateway.example.org/source/oauth/callback/google/
+google_client_id     = "xxxxx.apps.googleusercontent.com"
+google_client_secret = "GOCSPX-xxxxxxxxxxxx"
+
+#############################
+# Social Login - Apple
+#############################
+# Create at: https://developer.apple.com/
+# Requires Apple Developer account ($99/year)
+# Redirect URI: https://gateway.example.org/source/oauth/callback/apple/
+# Format: "SERVICE_ID;TEAM_ID;KEY_ID"
+apple_client_id     = "com.example.oauth;TEAM_ID;KEY_ID"
+apple_client_secret = "-----BEGIN PRIVATE KEY-----\nYOUR_PRIVATE_KEY_HERE\n-----END PRIVATE KEY-----"

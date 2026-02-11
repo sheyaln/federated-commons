@@ -1,0 +1,272 @@
+{
+    "id": null,
+    "title": "Tools-Prod Application Detail",
+    "tags": [
+        "tools-prod",
+        "applications",
+        "per-app",
+        "traefik",
+        "docker"
+    ],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "refresh": "30s",
+    "templating": {
+        "list": [
+            {
+                "hide": 0,
+                "name": "app",
+                "label": "Application",
+                "type": "query",
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${prometheus_uid}"
+                },
+                "refresh": 1,
+                "includeAll": false,
+                "multi": false,
+                "query": "label_values(container_memory_usage_bytes{job=\"cadvisor-tools-prod\", name=~\".*(outline|nextcloud|onlyoffice|privacy-policy|decidim|erpnext|n8n|espocrm|invoice|odoo).*\"}, name)",
+                "regex": "^([^-_]+).*",
+                "sort": 1,
+                "current": {}
+            },
+            {
+                "hide": 0,
+                "name": "service",
+                "label": "Traefik Service",
+                "type": "query",
+                "datasource": {
+                    "type": "prometheus",
+                    "uid": "${prometheus_uid}"
+                },
+                "refresh": 1,
+                "includeAll": false,
+                "multi": false,
+                "query": "label_values(traefik_service_requests_total{job=\"traefik-tools-prod\", service=~\".*$app.*\"}, service)",
+                "regex": "",
+                "sort": 1,
+                "current": {}
+            }
+        ]
+    },
+    "panels": [
+        {
+            "id": 1,
+            "title": "HTTP Requests (req/s) by Code - $service",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 0, "y": 0 },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(traefik_service_requests_total{job=\"traefik-tools-prod\", service=~\"$service\", code=~\"2..\"}[5m]))",
+                    "legendFormat": "2xx",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(traefik_service_requests_total{job=\"traefik-tools-prod\", service=~\"$service\", code=~\"4..\"}[5m]))",
+                    "legendFormat": "4xx",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(traefik_service_requests_total{job=\"traefik-tools-prod\", service=~\"$service\", code=~\"5..\"}[5m]))",
+                    "legendFormat": "5xx",
+                    "refId": "C"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "req/s",
+                    "custom": { "drawStyle": "line", "lineInterpolation": "linear", "lineWidth": 2, "fillOpacity": 10 }
+                },
+                "overrides": [
+                    {"matcher": {"id": "byName", "options": "2xx"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "green"}}]},
+                    {"matcher": {"id": "byName", "options": "4xx"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "yellow"}}]},
+                    {"matcher": {"id": "byName", "options": "5xx"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}}]}
+                ]
+            },
+            "options": {
+                "tooltip": { "mode": "multi", "sort": "desc" },
+                "legend": { "displayMode": "table", "values": ["last", "max"] }
+            }
+        },
+        {
+            "id": 2,
+            "title": "Success Rate (%) - $service",
+            "type": "stat",
+            "gridPos": { "h": 8, "w": 12, "x": 12, "y": 0 },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "(sum(rate(traefik_service_requests_total{job=\"traefik-tools-prod\", service=~\"$service\", code=~\"2..\"}[5m])) / clamp_min(sum(rate(traefik_service_requests_total{job=\"traefik-tools-prod\", service=~\"$service\"}[5m])), 0.0001)) * 100",
+                    "legendFormat": "Success Rate",
+                    "refId": "A"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "thresholds": { "steps": [ {"color": "red", "value": null}, {"color": "yellow", "value": 95}, {"color": "green", "value": 98} ] }
+                }
+            },
+            "options": { "reduceOptions": { "calcs": ["lastNotNull"], "values": false }, "orientation": "horizontal", "textMode": "auto", "colorMode": "background" }
+        },
+        {
+            "id": 3,
+            "title": "Response Time (s) - $service",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 0, "y": 8 },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "clamp_min(histogram_quantile(0.50, sum by (service, le) (rate(traefik_service_request_duration_seconds_bucket{job=\"traefik-tools-prod\", service=~\"$service\"}[5m]))), 0) or vector(0)",
+                    "legendFormat": "50th Percentile (Median)",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "clamp_min(histogram_quantile(0.95, sum by (service, le) (rate(traefik_service_request_duration_seconds_bucket{job=\"traefik-tools-prod\", service=~\"$service\"}[5m]))), 0) or vector(0)",
+                    "legendFormat": "95th Percentile",
+                    "refId": "B"
+                }
+            ],
+            "fieldConfig": { "defaults": { "unit": "s", "custom": { "drawStyle": "line", "lineInterpolation": "linear", "lineWidth": 2, "fillOpacity": 10 } } },
+            "options": { "tooltip": { "mode": "multi", "sort": "desc" }, "legend": { "displayMode": "table", "values": ["last", "max"] } }
+        },
+        {
+            "id": 4,
+            "title": "CPU Usage (%) - $app",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 12, "y": 8 },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(container_cpu_usage_seconds_total{job=\"cadvisor-tools-prod\", name=~\".*$app.*\"}[5m])) * 100",
+                    "legendFormat": "$app CPU Usage",
+                    "refId": "A"
+                }
+            ],
+            "fieldConfig": { "defaults": { "unit": "percent", "min": 0, "custom": { "drawStyle": "line", "lineInterpolation": "linear", "lineWidth": 2, "fillOpacity": 10 } } },
+            "options": { "tooltip": { "mode": "multi", "sort": "desc" }, "legend": { "displayMode": "list" } }
+        },
+        {
+            "id": 5,
+            "title": "Memory Usage (MB) - $app",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 0, "y": 16 },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(container_memory_usage_bytes{job=\"cadvisor-tools-prod\", name=~\".*$app.*\"}) / 1024 / 1024",
+                    "legendFormat": "$app Memory Usage",
+                    "refId": "A"
+                }
+            ],
+            "fieldConfig": { "defaults": { "unit": "mbytes", "custom": { "drawStyle": "line", "lineInterpolation": "linear", "lineWidth": 2, "fillOpacity": 10 } } },
+            "options": { "tooltip": { "mode": "multi", "sort": "desc" }, "legend": { "displayMode": "list" } }
+        },
+        {
+            "id": 6,
+            "title": "Container Restarts (last 6h) - $app",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(clamp_min(changes(container_start_time_seconds{job=\"cadvisor-tools-prod\", name=~\".*$app.*\"}[6h]), 0))",
+                    "legendFormat": "$app Restarts",
+                    "refId": "A"
+                }
+            ],
+            "fieldConfig": { "defaults": { "unit": "short", "custom": { "drawStyle": "bars", "lineWidth": 1, "fillOpacity": 80 } } },
+            "options": { "tooltip": { "mode": "multi", "sort": "desc" }, "legend": { "displayMode": "list" } }
+        },
+        {
+            "id": 7,
+            "title": "Network I/O - $app",
+            "type": "timeseries",
+            "gridPos": { "h": 8, "w": 12, "x": 0, "y": 24 },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(container_network_receive_bytes_total{job=\"cadvisor-tools-prod\", name=~\".*$app.*\"}[5m]))",
+                    "legendFormat": "$app - Receive",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(container_network_transmit_bytes_total{job=\"cadvisor-tools-prod\", name=~\".*$app.*\"}[5m]))",
+                    "legendFormat": "$app - Transmit",
+                    "refId": "B"
+                }
+            ],
+            "fieldConfig": { "defaults": { "unit": "Bps", "custom": { "drawStyle": "line", "lineInterpolation": "linear", "lineWidth": 2, "fillOpacity": 10 } } },
+            "options": { "tooltip": { "mode": "multi", "sort": "desc" }, "legend": { "displayMode": "table", "values": ["last", "max"] } }
+        },
+        {
+            "id": 8,
+            "title": "Application Logs - $app",
+            "type": "logs",
+            "gridPos": { "h": 10, "w": 12, "x": 12, "y": 24 },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "${loki_uid}"
+                    },
+                    "expr": "{server_name=\"tools-prod\", service_name=~\".*$app.*\"}",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "showTime": true,
+                "showLabels": true,
+                "showCommonLabels": false,
+                "wrapLogMessage": true,
+                "prettifyLogMessage": false,
+                "enableLogDetails": true,
+                "sortOrder": "Descending"
+            }
+        }
+    ]
+}

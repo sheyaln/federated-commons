@@ -1,0 +1,62 @@
+
+# =============================================================================
+# LOCAL/ORG-SPECIFIC AUTHENTIK APPLICATIONS (TEMPLATE)
+# =============================================================================
+# Copy this file to apps_local.tf and customize for your deployment.
+#
+# This file is for purely org-specific apps like:
+# - Bookmark apps (external links to forms, wikis, services)
+# - Additional SSO apps unique to your organization
+#
+# Terraform merges all .tf files, so resources here combine with apps.tf
+# =============================================================================
+
+
+# -----------------------------------------------------------------------------
+# BOOKMARK APPS (External Links)
+# -----------------------------------------------------------------------------
+# Add external links that should appear in your Authentik app library.
+# These are purely org-specific - each deployment has different external services.
+
+# Example: Link to a member request form
+# module "member_form" {
+#   source = "./modules/bookmark"
+#
+#   application_name = "Member Request Form"
+#   application_slug = "member_form"
+#   launch_url       = "https://forms.example.com/member-request"
+#   access_level     = "member"
+#   category_group   = "Member Resources"
+#
+#   group_ids = {
+#     admin           = authentik_group.admin.id
+#     union_delegate  = authentik_group.union_delegate.id
+#     union_member    = authentik_group.union_member.id
+#     union_treasurer = authentik_group.union_treasurer.id
+#   }
+# }
+
+# Example: Link to an external wiki or docs
+# module "external_docs" {
+#   source = "./modules/bookmark"
+#
+#   application_name = "Documentation"
+#   application_slug = "docs"
+#   launch_url       = "https://wiki.example.com"
+#   access_level     = "member"
+#   category_group   = "Resources"
+#
+#   group_ids = {
+#     admin           = authentik_group.admin.id
+#     union_delegate  = authentik_group.union_delegate.id
+#     union_member    = authentik_group.union_member.id
+#     union_treasurer = authentik_group.union_treasurer.id
+#   }
+# }
+
+
+# -----------------------------------------------------------------------------
+# ADDITIONAL SSO APPS
+# -----------------------------------------------------------------------------
+# Add any additional apps unique to your deployment here.
+# See apps.tf for examples of how to configure OAuth2 and SAML apps.

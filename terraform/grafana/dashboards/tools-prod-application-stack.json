@@ -1,0 +1,713 @@
+{
+    "id": null,
+    "title": "Tools-Prod Application Stack",
+    "tags": [
+        "tools-prod",
+        "applications",
+        "docker",
+        "traefik",
+        "production"
+    ],
+    "style": "dark",
+    "timezone": "browser",
+    "editable": true,
+    "graphTooltip": 1,
+    "time": {
+        "from": "now-1h",
+        "to": "now"
+    },
+    "refresh": "30s",
+    "panels": [
+        {
+            "id": 1,
+            "title": "Service Health Overview",
+            "type": "stat",
+            "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "count(container_start_time_seconds{job=\"cadvisor-tools-prod\", name!=\"\"})",
+                    "legendFormat": "Running Containers",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "up{job=\"node-tools-prod\"}",
+                    "legendFormat": "Server Online",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "up{job=\"traefik-tools-prod\"}",
+                    "legendFormat": "Reverse Proxy",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(traefik_entrypoint_requests_total{job=\"traefik-tools-prod\"}[5m]))",
+                    "legendFormat": "HTTP Requests/sec",
+                    "refId": "D"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "palette-classic"
+                    },
+                    "custom": {
+                        "displayMode": "basic"
+                    },
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "red",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 0.8
+                            },
+                            {
+                                "color": "green",
+                                "value": 1
+                            }
+                        ]
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "A"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Running Containers"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "B"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Server Online"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "C"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "Reverse Proxy"
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byFrameRefID",
+                            "options": "D"
+                        },
+                        "properties": [
+                            {
+                                "id": "displayName",
+                                "value": "HTTP Requests/sec"
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": ""
+                },
+                "orientation": "horizontal",
+                "textMode": "name",
+                "colorMode": "background",
+                "justifyMode": "auto"
+            }
+        },
+        {
+            "id": 2,
+            "title": "Application CPU Usage (Alert >80%)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 6
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "rate(container_cpu_usage_seconds_total{job=\"cadvisor-tools-prod\", name=~\".*(outline|nextcloud|onlyoffice|privacy-policy|decidim|erpnext|n8n).*\", name!=\"\"}[5m]) * 100",
+                    "legendFormat": "{{name}}",
+                    "refId": "A"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "percent",
+                    "min": 0,
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "fillOpacity": 10
+                    },
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    }
+                }
+            },
+            "options": {
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                },
+                "legend": {
+                    "displayMode": "table",
+                    "values": [
+                        "last",
+                        "max"
+                    ]
+                }
+            }
+        },
+        {
+            "id": 3,
+            "title": "Application Memory Usage",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 6
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "container_memory_usage_bytes{job=\"cadvisor-tools-prod\", name=~\".*(outline|nextcloud|onlyoffice|privacy-policy|decidim|erpnext|n8n).*\", name!=\"\"} / 1024 / 1024",
+                    "legendFormat": "{{name}}",
+                    "refId": "A"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "mbytes",
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "fillOpacity": 10
+                    },
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1000
+                            },
+                            {
+                                "color": "red",
+                                "value": 2000
+                            }
+                        ]
+                    }
+                }
+            },
+            "options": {
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                },
+                "legend": {
+                    "displayMode": "table",
+                    "values": [
+                        "last",
+                        "max"
+                    ]
+                }
+            }
+        },
+        {
+            "id": 4,
+            "title": "HTTP Error Rates (Alert >5%)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 14
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(traefik_entrypoint_requests_total{job=\"traefik-tools-prod\", code=~\"2..\"}[5m]))",
+                    "legendFormat": "Successful Requests (2xx)",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(traefik_entrypoint_requests_total{job=\"traefik-tools-prod\", code=~\"4..\"}[5m]))",
+                    "legendFormat": "Client Errors (4xx)",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "sum(rate(traefik_entrypoint_requests_total{job=\"traefik-tools-prod\", code=~\"5..\"}[5m]))",
+                    "legendFormat": "Server Errors (5xx)",
+                    "refId": "C"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "req/s",
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "fillOpacity": 10
+                    }
+                },
+                "overrides": [
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Successful Requests (2xx)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "green"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Client Errors (4xx)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "yellow"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "matcher": {
+                            "id": "byName",
+                            "options": "Server Errors (5xx)"
+                        },
+                        "properties": [
+                            {
+                                "id": "color",
+                                "value": {
+                                    "mode": "fixed",
+                                    "fixedColor": "red"
+                                }
+                            }
+                        ]
+                    }
+                ]
+            },
+            "options": {
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                },
+                "legend": {
+                    "displayMode": "table",
+                    "values": [
+                        "last",
+                        "max"
+                    ]
+                }
+            }
+        },
+        {
+            "id": 5,
+            "title": "Response Times (Alert >2s)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 14
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "clamp_min(histogram_quantile(0.50, sum by (entrypoint, le) (rate(traefik_entrypoint_request_duration_seconds_bucket{job=\"traefik-tools-prod\"}[5m]))), 0) or vector(0)",
+                    "legendFormat": "{{entrypoint}} Median",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "clamp_min(histogram_quantile(0.95, sum by (entrypoint, le) (rate(traefik_entrypoint_request_duration_seconds_bucket{job=\"traefik-tools-prod\"}[5m]))), 0) or vector(0)",
+                    "legendFormat": "{{entrypoint}} P95",
+                    "refId": "B"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "s",
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "fillOpacity": 10
+                    },
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 2
+                            }
+                        ]
+                    }
+                }
+            },
+            "options": {
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                },
+                "legend": {
+                    "displayMode": "table",
+                    "values": [
+                        "last",
+                        "max"
+                    ]
+                }
+            }
+        },
+        {
+            "id": 6,
+            "title": "Container Restarts (Alert >3/hour)",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 0,
+                "y": 22
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "clamp_min(changes(container_start_time_seconds{job=\"cadvisor-tools-prod\", name=~\".*(outline|nextcloud|onlyoffice|privacy-policy|decidim|erpnext|n8n).*\", name!=\"\"}[1h]), 0)",
+                    "legendFormat": "{{name}}",
+                    "refId": "A"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "short",
+                    "custom": {
+                        "drawStyle": "bars",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "fillOpacity": 80
+                    },
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 1
+                            },
+                            {
+                                "color": "red",
+                                "value": 3
+                            }
+                        ]
+                    }
+                }
+            },
+            "options": {
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                },
+                "legend": {
+                    "displayMode": "table",
+                    "values": [
+                        "last",
+                        "max"
+                    ]
+                }
+            }
+        },
+        {
+            "id": 7,
+            "title": "Container Network I/O",
+            "type": "timeseries",
+            "gridPos": {
+                "h": 8,
+                "w": 12,
+                "x": 12,
+                "y": 22
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "topk(5, sum by(name) (rate(container_network_receive_bytes_total{job=\"cadvisor-tools-prod\", name!=\"\"}[5m])))",
+                    "legendFormat": "{{name}} - RX",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "topk(5, sum by(name) (rate(container_network_transmit_bytes_total{job=\"cadvisor-tools-prod\", name!=\"\"}[5m])))",
+                    "legendFormat": "{{name}} - TX",
+                    "refId": "B"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "unit": "Bps",
+                    "custom": {
+                        "drawStyle": "line",
+                        "lineInterpolation": "linear",
+                        "lineWidth": 2,
+                        "fillOpacity": 10
+                    }
+                }
+            },
+            "options": {
+                "tooltip": {
+                    "mode": "multi",
+                    "sort": "desc"
+                },
+                "legend": {
+                    "displayMode": "table",
+                    "values": [
+                        "last",
+                        "max"
+                    ]
+                }
+            }
+        },
+        {
+            "id": 8,
+            "title": "Host Resource Usage",
+            "type": "stat",
+            "gridPos": {
+                "h": 6,
+                "w": 24,
+                "x": 0,
+                "y": 30
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\", job=\"node-tools-prod\"}[5m])) * 100)",
+                    "legendFormat": "CPU Usage",
+                    "refId": "A"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "(1 - (node_memory_MemAvailable_bytes{job=\"node-tools-prod\"} / node_memory_MemTotal_bytes{job=\"node-tools-prod\"})) * 100",
+                    "legendFormat": "Memory Usage",
+                    "refId": "B"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "(1 - (node_filesystem_avail_bytes{job=\"node-tools-prod\", mountpoint=\"/\", fstype=~\"ext4|xfs\"} / node_filesystem_size_bytes{job=\"node-tools-prod\", mountpoint=\"/\", fstype=~\"ext4|xfs\"})) * 100",
+                    "legendFormat": "Disk Usage",
+                    "refId": "C"
+                },
+                {
+                    "datasource": {
+                        "type": "prometheus",
+                        "uid": "${prometheus_uid}"
+                    },
+                    "expr": "node_load1{job=\"node-tools-prod\"}",
+                    "legendFormat": "Load Average (1m)",
+                    "refId": "D"
+                }
+            ],
+            "fieldConfig": {
+                "defaults": {
+                    "thresholds": {
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "yellow",
+                                "value": 70
+                            },
+                            {
+                                "color": "red",
+                                "value": 85
+                            }
+                        ]
+                    },
+                    "color": {"mode": "thresholds"}
+                },
+                "overrides": [
+                    {
+                        "matcher": {"id": "byFrameRefID", "options": "A"},
+                        "properties": [{"id": "unit", "value": "percent"}]
+                    },
+                    {
+                        "matcher": {"id": "byFrameRefID", "options": "B"},
+                        "properties": [{"id": "unit", "value": "percent"}]
+                    },
+                    {
+                        "matcher": {"id": "byFrameRefID", "options": "C"},
+                        "properties": [{"id": "unit", "value": "percent"}]
+                    },
+                    {
+                        "matcher": {"id": "byFrameRefID", "options": "D"},
+                        "properties": [{"id": "unit", "value": "short"}, {"id": "thresholds", "value": {"steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 2}, {"color": "red", "value": 4}]}}]
+                    }
+                ]
+            },
+            "options": {
+                "reduceOptions": {
+                    "values": false,
+                    "calcs": ["lastNotNull"],
+                    "fields": ""
+                },
+                "orientation": "horizontal",
+                "textMode": "auto",
+                "colorMode": "background",
+                "justifyMode": "auto"
+            }
+        },
+        {
+            "id": 9,
+            "title": "Application Logs (Recent Errors)",
+            "type": "logs",
+            "gridPos": {
+                "h": 10,
+                "w": 24,
+                "x": 0,
+                "y": 36
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "loki",
+                        "uid": "${loki_uid}"
+                    },
+                    "expr": "{server_name=\"tools-prod\"} |~ \"(?i)(error|exception|fail|fatal)\"",
+                    "refId": "A"
+                }
+            ],
+            "options": {
+                "showTime": true,
+                "showLabels": true,
+                "showCommonLabels": false,
+                "wrapLogMessage": true,
+                "prettifyLogMessage": false,
+                "enableLogDetails": true,
+                "sortOrder": "Descending"
+            }
+        }
+    ]
+}
