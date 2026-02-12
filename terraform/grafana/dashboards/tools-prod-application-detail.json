@@ -31,7 +31,7 @@
                 "refresh": 1,
                 "includeAll": false,
                 "multi": false,
-                "query": "label_values(container_memory_usage_bytes{job=\"cadvisor-tools-prod\", name=~\".*(outline|nextcloud|onlyoffice|privacy-policy|decidim|erpnext|n8n|espocrm|invoice|odoo).*\"}, name)",
+                "query": "label_values(container_memory_usage_bytes{job=\"cadvisor-tools-prod\", name=~\".*(outline|leantime|nextcloud|onlyoffice|privacy-policy|decidim|dolibarr|erpnext|zammad|n8n|espocrm|invoice|odoo|windmill).*\"}, name)",
                 "regex": "^([^-_]+).*",
                 "sort": 1,
                 "current": {}

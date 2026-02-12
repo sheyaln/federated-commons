@@ -113,7 +113,7 @@ environments:
     # S3: Scaleway Object Storage
     storage:
       type: "scaleway_s3"
-      bucket_prefix: "fc"
+      bucket_prefix: "obs"
   
   staging:
     # Database: Local PostgreSQL container on the VPS
@@ -127,4 +127,4 @@ environments:
     # Could also use MinIO container if even cheaper needed
     storage:
       type: "scaleway_s3"
-      bucket_prefix: "fc-staging"
+      bucket_prefix: "obs-staging"

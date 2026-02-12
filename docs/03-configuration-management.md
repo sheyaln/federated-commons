@@ -5,7 +5,7 @@ title: "Part 3: Configuration Management"
 
 # Part 3: Configuration Management (Ansible)
 
-The `ansible/` directory contains Ansible playbooks and roles that configure servers and deploy applications.
+The `ansible-vps/` directory contains Ansible playbooks and roles that configure servers and deploy applications.
 
 ## 3.1 What is Ansible?
 
@@ -32,13 +32,13 @@ Documentation: https://docs.ansible.com/ansible/latest/getting_started/index.htm
 ## 3.2 Directory Structure
 
 ```
-ansible/
+ansible-vps/
 ├── ansible.cfg              # Ansible settings
-├── inventory.ini            # List of servers to manage (copy from .example)
+├── inventory.ini            # List of servers to manage
 ├── playbook-tools-prod.yml  # Playbook for the tools server
 ├── playbook-management.yml  # Playbook for the management server
 ├── playbook-authentik.yml   # Playbook for the authentik SSO server
-├── playbook-render-templates.yml  # Render config templates
+├── playbook-wazuh.yml       # Wazuh deployment (WIP)
 ├── group-vars/              # Variables organized by application
 │   ├── all.yml              # Variables available to all playbooks
 │   ├── core.yml             # Core infrastructure variables
@@ -61,8 +61,8 @@ ansible/
 │       ├── decidim/
 │       ├── outline/
 │       └── espocrm/
-├── scripts/                 # Utility scripts
-└── tasks/                   # Shared task files
+└── includes/
+    └── security-common.yml
 ```
 
 ### Role Structure

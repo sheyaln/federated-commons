@@ -18,7 +18,7 @@
 
 # New 2025.12 storage structure: /data is the main mount point
 # Files are stored in /data/media (served at /files prefix)
-- name: Ensure Authentik subdirectories (2025.12+ structure)
+- name: Ensure Authentik subdirectories
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
@@ -26,24 +26,8 @@
   loop:
     - "{{ authentik_dir }}/data"
     - "{{ authentik_dir }}/data/media"
-    - "{{ authentik_dir }}/data/media/custom-assets"
-    - "{{ authentik_dir }}/data/media/application-icons"
     - "{{ authentik_dir }}/custom-templates"
     - "{{ authentik_dir }}/certs"
-
-# Copy branding assets
-- name: Copy Authentik assets for branding
-  ansible.builtin.copy:
-    src: custom-assets/
-    dest: "{{ authentik_dir }}/data/media/custom-assets/"
-    mode: '0644'
-
-# Copy application icons to new location
-- name: Copy application icons
-  ansible.builtin.copy:
-    src: application-icons/
-    dest: "{{ authentik_dir }}/data/media/application-icons/"
-    mode: '0644'
 
 - name: Copy docker-compose file
   ansible.builtin.copy:

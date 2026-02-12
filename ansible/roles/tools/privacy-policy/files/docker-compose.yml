@@ -6,7 +6,7 @@ services:
     restart: always
     volumes:
       - ./privacy-policy.html:/usr/share/nginx/html/index.html:ro
-      - ./logo.png:/usr/share/nginx/html/logo.png:ro
+      - ./DC-IWW_Logo.png:/usr/share/nginx/html/DC-IWW_Logo.png:ro
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.privacy-policy.loadbalancer.server.port=80"

@@ -25,3 +25,18 @@ output "bucket_id" {
   description = "ID of the created Scaleway object bucket"
   value       = scaleway_object_bucket.this.id
 }
+
+output "name" {
+  description = "Name of the created Scaleway object bucket"
+  value       = scaleway_object_bucket.this.name
+}
+
+output "region" {
+  description = "Region of the created Scaleway object bucket"
+  value       = scaleway_object_bucket.this.region
+}
+
+output "endpoint" {
+  description = "Endpoint URL of the created Scaleway object bucket"
+  value       = scaleway_object_bucket.this.endpoint
+}

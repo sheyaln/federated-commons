@@ -37,6 +37,7 @@
   vars_files:
     - group-vars/all.yml
     - group-vars/core.yml
+    - group-vars/tools-ufw.yml
     - group-vars/wazuh.yml
   roles:
     - core/fail2ban
@@ -78,6 +79,17 @@
     - group-vars/all.yml
   roles:
     - core/wobbler-access
+
+- name: Configure Tools host - Backrest Backup Access
+  hosts: tools-prod
+  tags:
+    - core
+    - backrest-access
+  become: true
+  vars_files:
+    - group-vars/all.yml
+  roles:
+    - core/backrest-access
 
 # ============================================
 # MONITORING

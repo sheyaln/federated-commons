@@ -12,7 +12,7 @@ resource "authentik_flow" "email_authenticator_enrollment" {
   policy_engine_mode = "any"
   compatibility_mode = true
   denied_action      = "message_continue"
-  background         = "/static/dist/custom-assets/background.jpg"  # Update to your custom background
+  background         = var.flow_background
 }
 
 resource "authentik_flow_stage_binding" "email_authenticator_enrollment_binding" {

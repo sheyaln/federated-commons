@@ -17,8 +17,8 @@
 
 - name: Copy Organization Logo
   ansible.builtin.copy:
-    src: files/logo.png
-    dest: /opt/privacy-policy/logo.png
+    src: files/DC-IWW_Logo.png
+    dest: /opt/privacy-policy/DC-IWW_Logo.png
     owner: ubuntu
     group: ubuntu
     mode: "0644"

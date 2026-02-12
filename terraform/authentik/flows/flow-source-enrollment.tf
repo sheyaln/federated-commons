@@ -8,8 +8,8 @@
 
 # Source Enrollment Flow (Passwordless)
 resource "authentik_flow" "source_enrollment" {
-  name               = "Social Login Enrollment"
-  title              = "Welcome!"  # Update with your organization's welcome message
+  name               = "${var.organisation_name} Social Enrollment"
+  title              = "Welcome to ${var.organisation_name}, Fellow Worker!"
   slug               = "source-enrollment"
   designation        = "enrollment"
   authentication     = "none"
@@ -17,7 +17,7 @@ resource "authentik_flow" "source_enrollment" {
   policy_engine_mode = "all"
   compatibility_mode = true
   denied_action      = "message_continue"
-  background         = "/static/dist/custom-assets/background.jpg"  # Update to your custom background
+  background         = var.flow_background
 }
 
 # ENROLLMENT STAGES
@@ -60,12 +60,14 @@ resource "authentik_flow_stage_binding" "source_enrollment_write_binding" {
 }
 
 # Stage 3: Welcome Message
+# Note: evaluate_on_plan=false and re_evaluate_policies=true ensures the notification
+# policy runs AFTER user_write has created the user, so the user is in context
 resource "authentik_flow_stage_binding" "source_enrollment_welcome_binding" {
   target               = authentik_flow.source_enrollment.uuid
   stage                = authentik_stage_prompt.source_enrollment_welcome.id
   order                = 20
-  evaluate_on_plan     = true
-  re_evaluate_policies = false
+  evaluate_on_plan     = false
+  re_evaluate_policies = true
 }
 
 # Stage 4: User Login (using shared stage)

@@ -28,14 +28,9 @@ resource "authentik_brand" "default" {
         userDisplay = "username"
       }
       theme = {
-        base = "automatic" # automatic/dark/light
-        # background = <<EOF
-        # background-image: url('/static/dist/custom-assets/background.jpg');
-        # background-size: cover;
-        # background-position: center;
-        # background-repeat: no-repeat;
-        # EOF
+        base       = "automatic" # automatic/dark/light
       }
+
       enabledFeatures = {
         apiDrawer          = false
         applicationEdit    = false

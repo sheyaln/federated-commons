@@ -1,10 +1,6 @@
 
 # Staging Environment Configuration
-#
-# WARNING: This file contains EXAMPLE passwords for staging/development use only.
-# DO NOT use these defaults in any production environment.
-# Always set passwords via environment variables or Ansible Vault.
-#
+
 # This file overrides production settings for the staging environment.
 # Staging uses local PostgreSQL container instead of managed database.
 
@@ -81,6 +77,11 @@ staging_app_databases:
     dbname: "nextcloud"
     username: "nextcloud"
     password: "{{ lookup('env', 'STAGING_NEXTCLOUD_DB_PASSWORD') | default('nextcloud-staging-pw', true) }}"
+  
+  zammad:
+    dbname: "zammad"
+    username: "zammad"
+    password: "{{ lookup('env', 'STAGING_ZAMMAD_DB_PASSWORD') | default('zammad-staging-pw', true) }}"
   
   n8n:
     dbname: "n8n"

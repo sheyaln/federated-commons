@@ -36,7 +36,7 @@ variable "image" {
 variable "psql_user" {
   description = "PostgreSQL username"
   type        = string
-  default     = "fc-admin"
+  default     = "obs-admin"
 }
 
 variable "psql_password" {

@@ -44,8 +44,9 @@ ENV HOME=/home/bridge
 ENV GNUPGHOME=/home/bridge/.gnupg
 ENV PASSWORD_STORE_DIR=/home/bridge/.password-store
 
-# Expose IMAP and SMTP ports
-EXPOSE 1143 1025
+# Expose socat-forwarded IMAP and SMTP ports
+# Bridge binds to 127.0.0.1:1143/1025; socat exposes on 0.0.0.0:11143/11025
+EXPOSE 11143 11025
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["--noninteractive"]

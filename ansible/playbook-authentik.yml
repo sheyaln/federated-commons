@@ -68,6 +68,17 @@
   roles:
     - core/wobbler-access
 
+- name: Configure Authentik host - Backrest Backup Access
+  hosts: authentik-prod
+  tags:
+    - core
+    - backrest-access
+  become: true
+  vars_files:
+    - group-vars/all.yml
+  roles:
+    - core/backrest-access
+
 - name: Configure Authentik host - Traefik
   hosts: authentik-prod
   tags: traefik

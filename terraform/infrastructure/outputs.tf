@@ -50,3 +50,4 @@ resource "local_file" "ansible_inventory" {
   filename        = "${path.module}/../../ansible/inventory.ini"
   file_permission = "0644"
 }
+

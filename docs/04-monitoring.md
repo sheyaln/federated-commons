@@ -95,19 +95,19 @@ Authentication via Authentik SSO. Role mapping:
 
 ### Terraform Grafana
 
-`terraform/grafana/` manages:
+`terraform-grafana/` manages:
 - Dashboard folders
 - Dashboard JSON files
 - Folder permissions
 
 ```bash
-cd terraform/grafana
+cd terraform-grafana
 terraform apply
 ```
 
 ### Dashboards
 
-Located in `terraform/grafana/dashboards/`:
+Located in `terraform-grafana/dashboards/`:
 - infrastructure-overview.json
 - traefik-overview.json
 - tools-prod-application-stack.json

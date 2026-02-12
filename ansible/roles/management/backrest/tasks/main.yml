@@ -23,7 +23,7 @@
     owner: root
     group: root
 
-- name: Deploy backup SSH private key for SSHFS plugin
+- name: Deploy wobbler SSH private key for SSHFS plugin
   ansible.builtin.copy:
     content: "{{ backrest_ssh_private_key }}{{ '' if backrest_ssh_private_key.endswith('\n') else '\n' }}"
     dest: /root/.ssh/backrest_ed25519

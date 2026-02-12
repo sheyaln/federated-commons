@@ -1,3 +1,12 @@
+.pf-c-content {
+  color: #000000;
+  padding: 0px 20px;
+  text-shadow: 0 0 10px rgb(196, 0, 0);
+}
+.library-page-title {
+  color: #000000;
+  text-shadow: 0 0 10px rgb(196, 0, 0);
+}
 /* Base styles (optional fallback) */
 .pf-u-display-none.pf-u-display-block-on-md,
 .pf-u-display-none.pf-u-display-block-on-md:focus,

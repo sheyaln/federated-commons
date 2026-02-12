@@ -10,7 +10,7 @@ module "network" {
   }
 }
 
-resource "scaleway_vpc_private_network" "fc_network_prod" {
+resource "scaleway_vpc_private_network" "network_prod" {
   name   = "network-prod"
   region = var.region
 

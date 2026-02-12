@@ -119,8 +119,8 @@
       
       After setup, other containers can connect via the 'protonmail' Docker network:
         Host: protonmail-bridge
-        IMAP: {{ '143' if (protonmail_use_prebuilt | default(false)) else '1143' }}
-        SMTP: {{ '25' if (protonmail_use_prebuilt | default(false)) else '1025' }}
+        IMAP: {{ '143' if (protonmail_use_prebuilt | default(false)) else '11143' }}
+        SMTP: {{ '25' if (protonmail_use_prebuilt | default(false)) else '11025' }}
         Username: Your Proton email address
         Password: Bridge-generated password (shown in 'info' output)
         Security: STARTTLS (port 143/1143) or SSL/TLS

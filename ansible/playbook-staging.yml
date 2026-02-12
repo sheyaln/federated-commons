@@ -65,6 +65,7 @@
     - group-vars/all.yml
     - group-vars/staging.yml
     - group-vars/core.yml
+    - group-vars/tools-ufw.yml
   roles:
     - core/ufw
 
@@ -147,7 +148,9 @@
   vars_files:
     - group-vars/all.yml
     - group-vars/staging.yml
-    - group-vars/authentik.yml
+    # CRITICAL: Use staging-specific Authentik config, NOT production!
+    # This ensures complete isolation from production Authentik
+    - group-vars/authentik-staging.yml
   vars:
     # Override to use local PostgreSQL
     POSTGRES_HOST: "{{ local_postgres_host }}"

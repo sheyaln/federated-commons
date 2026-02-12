@@ -26,7 +26,7 @@ variable "category_group" {
   default     = "Member Tools"
 }
 
-variable "provider_type" { # TODO: Remove, 
+variable "provider_type" { # TODO: Remove, SAML is a separate module now. This module is oauth2 only.
   description = "Provider type (oauth2, saml, etc). Defaults to oauth2."
   type        = string
   default     = "oauth2"
@@ -55,7 +55,7 @@ variable "launch_url" {
 }
 
 variable "icon_url" {
-  description = "Icon URL for the application (relative to Authentik media, e.g., 'application-icons/nextcloud.png')"
+  description = "Icon URL for the application (relative to Authentik media, e.g., 'nextcloud.png')"
   type        = string
   default     = null
 }

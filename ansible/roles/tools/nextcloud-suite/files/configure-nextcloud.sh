@@ -13,9 +13,10 @@ ADMIN_PASSWORD="$5"
 OIDC_CLIENT_ID="$6"
 OIDC_CLIENT_SECRET="$7"
 OIDC_ISSUER="$8"
+N8N_FORM_WEBHOOK_URL="$9"
 
 NEXTCLOUD_URL="https://${NEXTCLOUD_DOMAIN}"
-CONTAINER_NAME="nextcloud-suite-nextcloud-app-1"
+CONTAINER_NAME="nextcloud-suite-app-1"
 
 echo "Configuring Nextcloud at ${NEXTCLOUD_URL}..."
 
@@ -178,31 +179,52 @@ if [[ -n "${TALK_HOST_ENV}" && -n "${TALK_PORT_ENV}" ]]; then
     done
     run_occ app:enable spreed
 
-    # STUN server: prefer our TURN endpoint as STUN, fallback to public stun.nextcloud.com:443
+    # Retrieve secrets from the Nextcloud container environment
+    TURN_SECRET_ENV=$(docker exec "${CONTAINER_NAME}" env | grep "^TURN_SECRET=" | cut -d'=' -f2)
+    SIGNALING_SECRET_ENV=$(docker exec "${CONTAINER_NAME}" env | grep "^SIGNALING_SECRET=" | cut -d'=' -f2)
+
+    # STUN server: use our HPB's eturnal instance (JSON array format required)
+    echo "Configuring STUN server..."
     STUN_SERVER="${TALK_HOST_ENV}:${TALK_PORT_ENV}"
-    if ! run_occ config:app:set spreed stun_servers --value="${STUN_SERVER}"; then
-        run_occ config:app:set spreed stun_servers --value="stun.nextcloud.com:443"
-    fi
+    run_occ config:app:set spreed stun_servers --value="[\"${STUN_SERVER}\"]"
 
-    # TURN server with shared secret auth; Nextcloud expects URL and secret key
-    # Keys are stored in the app config: turn_servers, turn_secret (for shared-secret auth)
-    # Some versions use talk:turn:add, but standardizing via config:app:set keeps idempotency
-    TURN_SERVER="turns:${TALK_HOST_ENV}:${TALK_PORT_ENV}?transport=udp"
-    run_occ config:app:set spreed turn_servers --value="${TURN_SERVER}"
-    # Store secret if available via env in Nextcloud container
-    TURN_SECRET_ENV=$(docker exec "${CONTAINER_NAME}" env | grep TURN_SECRET | cut -d'=' -f2)
+    # TURN server with shared secret auth (JSON array of objects required)
+    # Nextcloud expects: [{"server":"host:port","secret":"...","protocols":"udp,tcp"}]
+    # Do not include the turn:/turns: scheme -- Nextcloud adds it based on "protocols" field
+    echo "Configuring TURN server..."
+    TURN_SERVER="${TALK_HOST_ENV}:${TALK_PORT_ENV}"
     if [[ -n "${TURN_SECRET_ENV}" ]]; then
-        run_occ config:app:set spreed turn_secret --value="${TURN_SECRET_ENV}"
+        run_occ config:app:set spreed turn_servers \
+            --value="[{\"server\":\"${TURN_SERVER}\",\"secret\":\"${TURN_SECRET_ENV}\",\"protocols\":\"udp,tcp\"}]"
+    else
+        echo "Warning: TURN_SECRET not found in container environment, TURN auth will not work" >&2
+        run_occ config:app:set spreed turn_servers \
+            --value="[{\"server\":\"${TURN_SERVER}\",\"secret\":\"\",\"protocols\":\"udp,tcp\"}]"
     fi
 
-    # Signaling server URL (using WSS protocol for WebSocket)
+    echo "Configuring signaling server..."
     SIGNAL_URL="wss://${TALK_HOST_ENV}"
-    run_occ config:app:set spreed signaling_servers --value="${SIGNAL_URL}"
+    if [[ -n "${SIGNALING_SECRET_ENV}" ]]; then
+        run_occ config:app:set spreed signaling_servers \
+            --value="{\"servers\":[{\"server\":\"${SIGNAL_URL}\",\"verify\":true}],\"secret\":\"${SIGNALING_SECRET_ENV}\"}"
+    else
+        echo "Warning: SIGNALING_SECRET not found, signaling auth will not work" >&2
+        run_occ config:app:set spreed signaling_servers \
+            --value="{\"servers\":[{\"server\":\"${SIGNAL_URL}\",\"verify\":true}],\"secret\":\"\"}"
+    fi
 
-    # Enable and configure HPB settings
-    run_occ config:app:set spreed enable_websocket --value="yes" || true
+    # Enable external signaling mode
     run_occ config:app:set spreed signaling_mode --value="external" || true
-    
+
+    # Disable E2E call encryption -- mobile apps do not support it yet.
+    # The server middleware (CanUseTalkMiddleware) enforces a minimum client
+    # version of 99.0.0 when E2E calls are on, which blanket-rejects every
+    # Android/iOS Talk request with HTTP 426.
+    # TODO: Re-enable when Nextcloud Talk mobile apps ship E2E call support
+    #       (TALK_ANDROID_MIN_VERSION_E2EE_CALLS / TALK_IOS_MIN_VERSION_E2EE_CALLS
+    #       drop below the current release version).
+    run_occ config:app:set spreed call_end_to_end_encryption --value="0"
+
     # Additional HPB optimizations
     run_occ config:app:set spreed has_reference_id --value="yes" || true
     run_occ config:app:set spreed start_conversations --value="1" || true
@@ -216,6 +238,12 @@ fi
 # Configure S3 primary storage
 echo "Configuring S3 primary storage..."
 run_occ config:system:set objectstore class --value="OC\\Files\\ObjectStore\\S3"
+
+# Configure S3 integrity settings for Scaleway compatibility (Nextcloud 32+)
+# Scaleway S3 may not support CRC32 checksums; disable integrity protection
+echo "Configuring S3 integrity protection for Scaleway compatibility..."
+run_occ config:system:set objectstore arguments request_checksum_calculation --value="when_required"
+run_occ config:system:set objectstore arguments response_checksum_validation --value="when_required"
 
 # Set Nextcloud instance name to "Sabo Cloud"
 echo "Setting Nextcloud instance name to Sabo Cloud..."
@@ -286,6 +314,9 @@ fi
 # Set up some useful defaults
 echo "Configuring Nextcloud defaults..."
 
+run_occ config:system:set default_phone_region --value="US"
+run_occ app:enable notify_push || true
+
 # Enable additional useful apps
 run_occ app:enable groupfolders || true
 run_occ app:enable notes || true
@@ -294,9 +325,44 @@ run_occ app:enable forms || true
 run_occ app:enable polls || true
 run_occ app:enable epubviewer || true
 
+# Enable webhook listeners for external integrations
+run_occ app:enable webhook_listeners || true
+
 # Disable unnecessary apps
 run_occ app:disable photos || true
 
+# Register n8n webhook for form submissions (idempotent)
+if [[ -n "${N8N_FORM_WEBHOOK_URL}" ]]; then
+    echo "Configuring webhook listener for form submissions..."
+    WEBHOOK_EVENT="OCA\\\\Forms\\\\Events\\\\FormSubmittedEvent"
+
+    # List existing webhooks and check if ours already exists
+    EXISTING=$(curl -s -u "${ADMIN_USER}:${ADMIN_PASSWORD}" \
+        -H "OCS-APIRequest: true" \
+        -H "Accept: application/json" \
+        "${NEXTCLOUD_URL}/ocs/v2.php/apps/webhook_listeners/api/v1/webhooks" 2>/dev/null)
+
+    if echo "${EXISTING}" | grep -q "${N8N_FORM_WEBHOOK_URL}"; then
+        echo "Webhook for form submissions already registered, skipping"
+    else
+        echo "Registering form submission webhook -> ${N8N_FORM_WEBHOOK_URL}"
+        REGISTER_RESULT=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST \
+            -u "${ADMIN_USER}:${ADMIN_PASSWORD}" \
+            -H "OCS-APIRequest: true" \
+            -H "Content-Type: application/json" \
+            -d "{\"httpMethod\":\"POST\",\"uri\":\"${N8N_FORM_WEBHOOK_URL}\",\"event\":\"${WEBHOOK_EVENT}\"}" \
+            "${NEXTCLOUD_URL}/ocs/v2.php/apps/webhook_listeners/api/v1/webhooks")
+
+        if [[ "${REGISTER_RESULT}" =~ ^2 ]]; then
+            echo "Webhook registered successfully (HTTP ${REGISTER_RESULT})"
+        else
+            echo "Warning: Webhook registration returned HTTP ${REGISTER_RESULT}" >&2
+        fi
+    fi
+else
+    echo "No n8n webhook URL provided, skipping form submission webhook"
+fi
 
 # Configure file handling
 run_occ config:system:set preview_max_x --value="2048"
@@ -329,6 +395,8 @@ run_occ config:system:set enable_certificate_management --value="false" --type=b
 run_occ config:system:set forwarded_for_headers 0 --value="HTTP_X_FORWARDED_FOR"
 run_occ config:system:set forwarded_for_headers 1 --value="HTTP_FORWARDED"
 run_occ config:system:set forwarded_for_headers 2 --value="HTTP_X_FORWARDED"
+
+run_occ maintenance:repair --include-expensive
 
 echo "Sabo Cloud configuration completed successfully!"
 echo ""

@@ -7,8 +7,8 @@
 
 # Source Authentication Flow for Social Logins
 resource "authentik_flow" "source_authentication" {
-  name               = "Social Login Authentication"
-  title              = "Welcome back!"  # Update with your organization's welcome message
+  name               = "${var.organisation_name} Social Login"
+  title              = "Welcome back to ${var.organisation_name}!"
   slug               = "source-authentication"
   designation        = "authentication"
   authentication     = "none"
@@ -16,7 +16,7 @@ resource "authentik_flow" "source_authentication" {
   policy_engine_mode = "all"
   compatibility_mode = true
   denied_action      = "message_continue"
-  background         = "/static/dist/custom-assets/background.jpg"  # Update to your custom background
+  background         = var.flow_background
 }
 
 # FLOW STAGE BINDINGS

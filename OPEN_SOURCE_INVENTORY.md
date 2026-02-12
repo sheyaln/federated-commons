@@ -1,6 +1,6 @@
 # Open Source Inventory
 
-A complete inventory of open source software used in the Federated Commons infrastructure, categorized by their philosophy and business model.
+A complete inventory of open source software used in the `dciww-commons` infrastructure, categorized by their philosophy and business model.
 
 ## Special Thanks
 *We extend our gratitude to these projects. Whether they are community-driven, non-profits, or "Good Actor" corporations, they provide fully-featured open source software without predatory limitations, SSO taxes, or hostile licenses.*
@@ -16,7 +16,7 @@ A complete inventory of open source software used in the Federated Commons infra
 *   **Unattended Upgrades** (Debian Community) - Automatic system updates.
 *   **Vikunja** (Community / Open Collective) - To-do list and task management. [Donate](https://opencollective.com/vikunja)
 
-### Corporate Good Actors
+### Corporate "Good Actors"
 *These companies monetize responsibly (e.g., hosting, support) without crippling the open source version.*
 
 *   **Authentik** (Authentik Security Inc.) - Fully featured SSO IdP with very few, and truly enterprise-only features behind the paywall. [Donate](https://github.com/sponsors/BeryJu)
@@ -36,6 +36,9 @@ A complete inventory of open source software used in the Federated Commons infra
 *   **n8n** (n8n GmbH) - **SSO Tax.** Single Sign-On (SAML) is locked behind the Enterprise plan (~€600/mo). Also uses a non-OSI "Fair Code" license.
 *   **OnlyOffice** (Ascensio System SIA) - **Artificial Limits.** The free version is hard-coded to restrict concurrent connections.
 *   **Outline** (Outline / General Linear Group) - **Hostile License.** Switched to the Business Source License (BSL), restricting usage for many organizations.
+*   **Portainer** (Portainer.io) - **SSO Tax.** The Community Edition explicitly lacks external authentication (SAML/OIDC).
+*   **ProtonMail Bridge** (Proton AG) - **Paywalled Usage.** Requires a paid ProtonMail account to function.
 *   **Terraform** (HashiCorp / IBM) - **Hostile License.** Switched to the Business Source License (BSL). Owned by IBM.
 *   **Traefik** (Traefik Labs) - **Crippled Features.** High Availability (clustering) is an Enterprise-only feature.
 *   **Windmill** (Windmill Labs) - **SSO Tax.** SSO and granular permissions are locked behind commercial plans.
+*   **Zammad** (Zammad GmbH) - **Limited SSO.** Authentication options are restricted or limited compared to the enterprise offering.

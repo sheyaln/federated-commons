@@ -14,4 +14,10 @@ module "flows" {
   # Organization configuration from project.yml
   domain            = local.tools_domain
   organisation_name = local.org_name
+
+  # Branding configuration
+  flow_background = var.branding_default_flow_background
+
+  # N8N webhook for user lifecycle notifications
+  n8n_webhook_user_notifications = local.n8n_webhook_user_notifications
 }

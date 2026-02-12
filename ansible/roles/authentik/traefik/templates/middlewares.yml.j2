@@ -33,7 +33,8 @@ http:
 
     # Authentik Forward Auth Middleware (Official Configuration)
     # Based on: https://docs.goauthentik.io/docs/providers/proxy/server_traefik
-    authentik:
+    # Renamed to 'authentik-auth' to avoid naming conflict with the 'authentik' service
+    authentik-auth:
       forwardAuth:
         address: "http://authentik-server:9000/outpost.goauthentik.io/auth/traefik"
         trustForwardHeader: true

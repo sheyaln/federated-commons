@@ -60,16 +60,35 @@ variable "gateway_email" {
   default     = null
 }
 
-locals {
-  # Derive gateway email from domain if not explicitly set
-  gateway_email = coalesce(var.gateway_email, "gateway@${var.domain}")
-}
-
 # GROUP IDS
 
 variable "pending_activation_group_id" {
   description = "ID of the pending activation group (deprecated - not used)"
   type        = string
   default     = "" # Not used anymore - delegates create active accounts
+}
+
+# BRANDING CONFIGURATION
+
+variable "flow_background" {
+  description = "Background image for authentication flows (S3 object name or URL)"
+  type        = string
+  default     = "background.jpg"
+}
+
+# N8N WEBHOOK CONFIGURATION
+
+variable "n8n_webhook_user_notifications" {
+  description = "N8N webhook URL for user lifecycle notifications (handles Slack threading and emails)"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+# DERIVED LOCALS
+
+locals {
+  # Derive gateway email from domain if not explicitly set
+  gateway_email = coalesce(var.gateway_email, "gateway@${var.domain}")
 }
 

@@ -98,7 +98,7 @@ services:
 
   # Nextcloud - File Management & Collaboration Platform
   app:
-    image: nextcloud:31-apache
+    image: nextcloud:32-apache
     restart: always
     depends_on:
       - redis
@@ -208,7 +208,7 @@ services:
 
   # Nextcloud Cron - Background job processing
   cron:
-    image: nextcloud:31-apache
+    image: nextcloud:32-apache
     restart: always
     depends_on:
       - app
@@ -223,6 +223,20 @@ services:
     image: ghcr.io/nextcloud-releases/aio-talk:latest
     container_name: talk_hpb
     restart: unless-stopped
+    # Wrapper entrypoint: run the image's start.sh, then patch eturnal config
+    # to use the public IP for TURN relay (Docker internal IP is unreachable from clients)
+    # and constrain the relay port range to match the mapped ports below.
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        /start.sh
+        PUBLIC_IP=$$(dig "$${TALK_HOST}" IN A +short +search | grep '^[0-9.]\+$$' | head -n1)
+        if [ -n "$$PUBLIC_IP" ]; then
+          sed -i "s|relay_ipv4_addr:.*|relay_ipv4_addr: \"$$PUBLIC_IP\"|" /conf/eturnal.yml
+        fi
+        sed -i '/secret:/a\  relay_min_port: 49152\n  relay_max_port: 49252' /conf/eturnal.yml
+        exec /usr/bin/supervisord -c /supervisord.conf
     environment:
       - NC_DOMAIN=${NEXTCLOUD_DOMAIN}
       - TALK_HOST=${TALK_HOST}
@@ -231,15 +245,19 @@ services:
       - SIGNALING_SECRET=${SIGNALING_SECRET}
       - INTERNAL_SECRET=${INTERNAL_SECRET}
       - TZ=${TZ}
-    # TURN ports must be internet-facing
+    # TURN control port + relay port range must be internet-facing
     ports:
       - "3478:3478/tcp"
       - "3478:3478/udp"
+      - "49152-49252:49152-49252/udp"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.talk-signal.rule=Host(`${TALK_HOST}`)"
       - "traefik.http.routers.talk-signal.entrypoints=websecure"
       - "traefik.http.routers.talk-signal.tls.certresolver=le"
+      - "traefik.http.routers.talk-signal.service=talk-signal"
+      # Force HTTP/1.1 via ALPN - required for WebSocket upgrade (prevents 426 errors)
+      - "traefik.http.routers.talk-signal.tls.options=websocket@file"
       - "traefik.http.services.talk-signal.loadbalancer.server.port=8081"
       - "traefik.docker.network=traefik"
       # autoheal
@@ -248,7 +266,7 @@ services:
       - traefik
       - nextcloud_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8081/api/v1/welcome"]
+      test: ["CMD", "wget", "--spider", "-q", "http://localhost:8081/api/v1/welcome"]
       interval: 30s
       timeout: 10s
       retries: 5

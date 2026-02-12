@@ -24,7 +24,9 @@ resource "authentik_outpost" "embedded" {
   # Bind all forward auth proxy providers to the embedded outpost
   # n8n now uses direct OIDC instead of forward auth
   # Add new forward auth providers here as they're created
-  protocol_providers = []
+  protocol_providers = [
+    module.backrest.provider_id,
+  ]
 
   config = jsonencode({
     authentik_host          = "https://${local.gateway_domain}/"

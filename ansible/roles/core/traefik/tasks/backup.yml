@@ -62,14 +62,22 @@
   changed_when: false
   tags: ["traefik_acme_backup"]
 
+- name: Check if downloaded acme.json exists on remote host
+  ansible.builtin.stat:
+    path: /tmp/traefik-acme-download/acme.json
+  register: downloaded_acme
+  become: true
+  tags: ["traefik_acme_backup"]
+
 - name: Move downloaded acme.json into Traefik volume
   ansible.builtin.copy:
     src: "/tmp/traefik-acme-download/acme.json"
     dest: "/var/lib/docker/volumes/traefik_data/_data/acme.json"
+    remote_src: true
     owner: 0
     group: 0
     mode: "0600"
-  when: "'acme.json' in lookup('ansible.builtin.fileglob', '/tmp/traefik-acme-download/acme.json', errors='ignore')"
+  when: downloaded_acme.stat.exists | default(false)
   become: true
   tags: ["traefik_acme_backup"]
 

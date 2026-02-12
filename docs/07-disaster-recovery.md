@@ -62,7 +62,7 @@ Managed PostgreSQL supports PITR for recent data:
 3. Restore data if needed
 4. Redeploy:
    ```bash
-   cd ~/federated-commons/ansible
+   cd ~/federated-commons/ansible-vps
    ansible-playbook playbook-tools-prod.yml -i inventory.ini --tags {app}
    ```
 
@@ -93,7 +93,7 @@ cp -r /restore/backup/opt/{app} /opt/
 
 1. Recreate with Terraform:
    ```bash
-   cd terraform/infrastructure
+   cd terraform-scaleway-infra
    terraform apply
    ```
 
@@ -174,7 +174,7 @@ Update nameservers at domain registrar to point elsewhere temporarily.
 
 Terraform state contains record IDs. Run:
 ```bash
-cd terraform/infrastructure
+cd terraform-scaleway-infra
 terraform apply
 ```
 

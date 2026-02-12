@@ -38,6 +38,7 @@ providers:
   docker:
     exposedByDefault: false
     network: {{ traefik_network_name }}
+    endpoint: tcp://docker-socket-proxy:2375
     
   file:
     directory: /config/dynamic

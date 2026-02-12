@@ -44,21 +44,6 @@ talk_internal_secret: "{{ lookup('scaleway.scaleway.scaleway_secret', 'nextcloud
 talk_host: "signal.{{ default_domain }}"
 talk_port: "3478"
 
-# ── Firewall openings for TURN ────────
-ufw_custom_rules:
-  - {
-      rule: allow,
-      port: "3478",
-      proto: tcp,
-      comment: "Nextcloud Talk TURN TCP",
-    }
-  - {
-      rule: allow,
-      port: "3478",
-      proto: udp,
-      comment: "Nextcloud Talk TURN UDP",
-    }
-
 # ── Authentik OIDC Configuration ────────
 # Note: Create authentik-app-sabo-cloud secret in Scaleway Secret Manager
 oidc_client_id: "{{ (lookup('scaleway.scaleway.scaleway_secret', 'authentik-app-sabo-cloud', errors='ignore') | default('{}', true) | b64decode | from_json).client_id | default('') }}"
@@ -83,6 +68,9 @@ mail_domain: "{{ tools_domain }}"
 # ── Security Configuration ─────────────────────────
 trusted_proxies: "172.0.0.0/8" # Traefik network range for reverse proxy
 default_phone_region: "US" # ISO 3166-1 country code for phone numbers
+
+# ── n8n Webhook for Form Submissions ────────
+n8n_form_webhook_url: "https://n8n.{{ management_domain }}/webhook/nextcloud-form-submission"
 
 # ── Deployment Configuration ────────
 nextcloud_force_recreate: false # Set to true to force container recreation

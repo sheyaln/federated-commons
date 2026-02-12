@@ -116,15 +116,15 @@ verify_update() {
     print_status "Local file timestamp: $local_timestamp"
 
     # Curl the privacy policy page to verify it's serving content
-    print_status "Testing live page at https://privacy.example.org ..."
+    print_status "Testing live page at https://privacy.dciww.org ..."
 
     local http_code
-    http_code=$(curl -s -o /dev/null -w "%{http_code}" "https://privacy.example.org" 2>/dev/null || echo "000")
+    http_code=$(curl -s -o /dev/null -w "%{http_code}" "https://privacy.dciww.org" 2>/dev/null || echo "000")
 
     if [[ "$http_code" == "200" ]]; then
         print_success "Page is accessible (HTTP $http_code)"
     elif [[ "$http_code" == "000" ]]; then
-        print_warning "Could not connect to https://privacy.example.org - verify manually"
+        print_warning "Could not connect to https://privacy.dciww.org - verify manually"
     else
         print_warning "Unexpected HTTP status code: $http_code"
     fi

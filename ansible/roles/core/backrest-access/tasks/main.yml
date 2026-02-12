@@ -1,7 +1,7 @@
 ---
 # Grant ubuntu user read access to Docker volumes for SFTP-based backups.
 # The Backrest instance on the management server mounts these paths over SSHFS
-# using the backup SSH key (which authenticates as ubuntu).
+# using the Wobbler SSH key (which authenticates as ubuntu).
 # Docker volumes are owned by root, so POSIX ACLs are needed.
 
 - name: Install acl package for POSIX ACL support

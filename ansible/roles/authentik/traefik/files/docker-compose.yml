@@ -7,10 +7,37 @@ x-logging: &default-logging
     compress: "true"
 
 services:
+  # Docker Socket Proxy - Security layer for Docker API access (SECURITY CRITICAL)
+  # Limits Traefik to read-only container discovery, blocks dangerous APIs
+  docker-socket-proxy:
+    image: tecnativa/docker-socket-proxy:latest
+    container_name: authentik-traefik-socket-proxy
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - CONTAINERS=1
+      - NETWORKS=1
+      - SERVICES=1
+      - TASKS=1
+      - VOLUMES=1
+    ports:
+      - "127.0.0.1:2376:2375"
+    networks:
+      - traefik
+    security_opt:
+      - no-new-privileges:true
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=infrastructure"
+    logging: *default-logging
+
   traefik:
-    image: traefik:v2.10
+    image: traefik:v3.1
     container_name: traefik-authentik
     restart: unless-stopped
+    depends_on:
+      - docker-socket-proxy
     command:
       # API and Dashboard
       - --api=false
@@ -20,6 +47,7 @@ services:
 
       # Providers
       - --providers.docker=true
+      - --providers.docker.endpoint=tcp://docker-socket-proxy:2375
       - --providers.docker.exposedbydefault=false
       - --providers.docker.network=traefik
       - --providers.file.directory=/config/dynamic
@@ -66,7 +94,7 @@ services:
       - "${PRIVATE_IP:-0.0.0.0}:9102:9102"
 
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock:ro
+      # Docker socket access is now via docker-socket-proxy (more secure)
       - ./data:/data
       - ./logs:/logs
       - ./config:/config:ro
@@ -99,7 +127,8 @@ services:
       - "autoheal=false"
 
       # Global HTTP to HTTPS redirect - but with lower priority than ACME
-      - "traefik.http.routers.http-redirect.rule=HostRegexp(`{host:.+}`)"
+      # Note: v3 HostRegexp syntax - no named capture groups
+      - "traefik.http.routers.http-redirect.rule=HostRegexp(`.+`)"
       - "traefik.http.routers.http-redirect.entrypoints=web"
       - "traefik.http.routers.http-redirect.middlewares=redirect-to-https"
       - "traefik.http.routers.http-redirect.priority=1"

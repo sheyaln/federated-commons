@@ -102,15 +102,15 @@ authentik_oauth_api_url: "{{ authentik_url }}/application/o/userinfo/"
 authentik_oauth_signout_url: "{{ authentik_url }}/application/o/grafana/end-session/"
 
 # Zabbix database credentials from managed PostgreSQL
-# Secret created by terraform/infrastructure secrets module
+# Secret created by terraform-scaleway-infra postgres module
 # IMPORTANT: Create this secret in Scaleway Secret Manager before deploying Zabbix
 _zabbix_db_creds_raw: "{{ lookup('scaleway.scaleway.scaleway_secret', 'postgres-zabbix-credentials', errors='ignore') | default('', true) }}"
 _zabbix_db_creds: "{{ _zabbix_db_creds_raw | b64decode | from_json if _zabbix_db_creds_raw else {} }}"
-zabbix_db_host: "{{ _zabbix_db_creds.host | default('') }}"
+zabbix_db_host: "{{ _zabbix_db_creds.host | default('zabbix-db') }}"
 zabbix_db_port: "{{ _zabbix_db_creds.port | default('5432') }}"
 zabbix_db_name: "{{ _zabbix_db_creds.dbname | default('zabbix') }}"
-zabbix_db_user: "{{ _zabbix_db_creds.username | default('') }}"
-zabbix_db_password: "{{ _zabbix_db_creds.password | default('') }}"
+zabbix_db_user: "{{ _zabbix_db_creds.username | default('zabbix') }}"
+zabbix_db_password: "{{ _zabbix_db_creds.password | default('SECRETS_NOT_CONFIGURED') }}"
 
 # Zabbix Server address for agents
 zabbix_server_address: "{{ server_ips.management }}"

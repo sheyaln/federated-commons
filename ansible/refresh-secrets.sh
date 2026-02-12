@@ -60,7 +60,7 @@ print_header "Federated Commons Secret Refresh Tool"
 # Display available host groups
 print_color $YELLOW "Available host groups:"
 echo "  1) tools-prod     - Production tools server"
-echo "  2) tools-staging  - Staging tools server"  
+echo "  2) tools-staging  - Staging tools server"
 echo "  3) management     - Management services server"
 echo "  4) authentik-prod - Authentik SSO server"
 echo ""
@@ -208,7 +208,7 @@ if [[ "$TARGET_GROUP" == *"prod"* ]]; then
     echo ""
     print_color $YELLOW "Are you sure you want to continue? (yes/no):"
     read -r CONFIRM
-    
+
     if [ "$CONFIRM" != "yes" ]; then
         print_color $YELLOW "Operation cancelled."
         exit 0
@@ -258,7 +258,7 @@ if ansible-playbook playbook-refresh-secrets.yml \
     --extra-vars "@$TEMP_VARS" \
     --extra-vars "target_host_group=$TARGET_GROUP" \
     --extra-vars "target_service=$TARGET_SERVICE"; then
-    
+
     print_header "SECRET REFRESH COMPLETED"
     if [ "$TARGET_SERVICE" = "all" ]; then
         print_color $GREEN "✓ Secrets have been refreshed for ALL services successfully!"
@@ -275,7 +275,7 @@ if ansible-playbook playbook-refresh-secrets.yml \
         echo "  2. Test $TARGET_SERVICE service manually"
         echo "  3. Monitor logs: docker-compose -f /opt/$TARGET_SERVICE/docker-compose.yml logs"
     fi
-    
+
 else
     print_header "SECRET REFRESH FAILED"
     print_color $RED "✗ Secret refresh failed. Please check the output above for errors."
@@ -290,4 +290,4 @@ fi
 # Clean up temporary file
 rm -f "$TEMP_VARS"
 
-echo "" 
+echo ""

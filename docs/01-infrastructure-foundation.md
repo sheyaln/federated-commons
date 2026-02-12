@@ -5,7 +5,7 @@ title: "Part 1: Infrastructure Foundation"
 
 # Part 1: Infrastructure Foundation (Terraform Scaleway)
 
-The `terraform/infrastructure/` directory contains Terraform code that creates cloud resources: servers, networks, databases, storage, DNS records, and secrets.
+The `terraform-scaleway-infra/` directory contains Terraform code that creates cloud resources: servers, networks, databases, storage, DNS records, and secrets.
 
 ## 1.1 Terraform Basics
 
@@ -27,35 +27,35 @@ State is stored in S3:
 ## 1.2 Directory Structure
 
 ```
-terraform/infrastructure/
+terraform-scaleway-infra/
 ├── main.tf              # Loads secrets module
 ├── providers.tf         # Provider config, S3 backend
 ├── variables.tf         # Variable definitions
-├── terraform.tfvars     # Variable values (gitignored, copy from .example)
+├── terraform.tfvars     # Variable values
 ├── outputs.tf           # Exported values
-├── project_config.tf    # Project-level configuration
 ├── compute.tf           # Server instances
 ├── compute-groups.tf    # Security groups
 ├── network.tf           # VPC private network
 ├── storage.tf           # S3 buckets, PostgreSQL
-├── secrets.tf           # Secret Manager resources
-├── dns.tf               # DNS zone and base records
-├── dns_apps.tf          # Application DNS records
+├── dns.tf               # DNS records
 ├── kubernetes.tf        # K8s cluster (disabled)
-└── modules/
-    ├── compute/
-    ├── network/
-    ├── secrets/
-    └── storage/
-        ├── object_bucket/
-        └── postgres/
+├── modules/
+│   ├── compute/
+│   └── storage/
+│       ├── object_bucket/
+│       └── postgres/
+└── secrets/             # Secret Manager resources
+    ├── authentik.tf
+    ├── outline.tf
+    ├── decidim.tf
+    └── [app].tf
 ```
 
 ## 1.3 Servers
 
 ### tools-prod
 
-Production applications: Decidim, EspoCRM, Outline, Nextcloud, OnlyOffice.
+Production applications: Decidim, EspoCRM, Outline, Nextcloud, OnlyOffice, Leantime.
 
 Type: DEV1-L (4 vCPU, 8GB RAM, 50GB SSD)
 
@@ -141,6 +141,7 @@ module "postgres_db" {
     "onlyoffice",
     "decidim",
     "odoo",
+    "zammad",
     "zabbix",
     "n8n",
   ]
@@ -229,7 +230,7 @@ resource "scaleway_domain_record" "catch_all" {
 }
 ```
 
-Email records (MX, SPF, DKIM, DMARC) for your mail provider. Don't modify unless changing providers.
+Email records (MX, SPF, DKIM, DMARC) for ProtonMail. Don't modify.
 
 Adding a subdomain:
 1. Add record in `dns.tf`

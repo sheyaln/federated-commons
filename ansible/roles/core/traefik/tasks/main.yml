@@ -145,6 +145,13 @@
     host: 127.0.0.1
     timeout: 60
   failed_when: false
+
+- name: Ensure ACME certificate store has strict permissions (Traefik requires 600)
+  ansible.builtin.command:
+    cmd: docker exec traefik chmod 600 /letsencrypt/acme.json
+  changed_when: false
+  failed_when: false
+
 - import_tasks: backup.yml
   tags:
     - traefik_acme_backup

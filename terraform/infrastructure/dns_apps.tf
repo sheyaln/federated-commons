@@ -22,7 +22,7 @@ locals {
   # Map domain keys to actual domain zones
   domain_zones = local.apps_config != null ? {
     tools      = scaleway_domain_zone.main.id
-    management = try(scaleway_domain_zone.management[0].id, null)
+    management = length(scaleway_domain_zone.management) > 0 ? scaleway_domain_zone.management[0].id : null
     staging    = null
   } : {}
 

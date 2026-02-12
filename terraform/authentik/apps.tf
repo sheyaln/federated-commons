@@ -12,6 +12,8 @@ module "outline" {
   ]
   access_level = "member"
 
+  category_group = "Member Resources"
+
   # oauth2 config - documents intended scopes for collaborative wiki editing
   oauth2_scopes         = ["openid", "profile", "email", "groups", "offline_access"] # offline_access enables refresh tokens
   access_token_validity = "hours=1"                                                  # Longer tokens for document editing
@@ -144,13 +146,15 @@ module "zabbix" {
   ]
 }
 
+# Nextcloud / Cloud Storage
+# Note: App name and icon can be customized via project.yml or override in apps_local.tf
 module "nextcloud" {
   source = "./modules/app"
 
-  application_name = "Cloud Storage"
-  application_slug = "cloud"
+  application_name = "Sabo Cloud"
+  application_slug = "sabo-cloud"
   launch_url       = "https://cloud.${local.tools_domain}/apps/user_oidc/login/3"
-  # provider config
+
   provider_type = "oauth2"
   redirect_uris = [
     {
@@ -164,51 +168,22 @@ module "nextcloud" {
   gateway_domain           = local.gateway_domain
   org_name                 = local.org_name
 
-  # oauth2 config
   oauth2_scopes = ["openid", "profile", "email", "groups"]
 
-  # custom login flow
   authentication_flow_uuid = module.flows.authentication_flow_login
   authorization_flow_uuid  = module.flows.default_provider_authorization_implicit_consent_id
   invalidation_flow_uuid   = module.flows.default_provider_invalidation_flow_id
 
-  # ui stuff - customize with your org's icon
-  icon_url = "nextcloud-icon.png"
-
+  icon_url = "sabo-cloud-icon.png"
   sub_mode = "user_id"
 
-  # groups for access
   group_ids = {
     admin           = authentik_group.admin.id
     union_delegate  = authentik_group.union_delegate.id
     union_member    = authentik_group.union_member.id
     union_treasurer = authentik_group.union_treasurer.id
   }
-
 }
-
-# =============================================================================
-# BOOKMARK APPS (External Links)
-# =============================================================================
-# Add bookmark modules here for external services you want to display
-# in the Authentik application library. Example:
-#
-# module "example_bookmark" {
-#   source = "./modules/bookmark"
-#
-#   application_name = "External Service"
-#   application_slug = "external_service"
-#   launch_url       = "https://example.com/your-form"
-#   access_level     = "member"
-#   category_group   = "Member Resources"
-#
-#   group_ids = {
-#     admin           = authentik_group.admin.id
-#     union_delegate  = authentik_group.union_delegate.id
-#     union_member    = authentik_group.union_member.id
-#     union_treasurer = authentik_group.union_treasurer.id
-#   }
-# }
 
 module "espocrm" {
   source = "./modules/app"
@@ -300,7 +275,7 @@ module "vikunja" {
 
   application_name = "Vikunja Tasks"
   application_slug = "vikunja"
-  category_group   = "Organization"
+  category_group   = "Member Tools"
   provider_type    = "oauth2"
 
   # OIDC Configuration

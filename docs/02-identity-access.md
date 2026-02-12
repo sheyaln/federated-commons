@@ -5,7 +5,7 @@ title: "Part 2: Identity & Access"
 
 # Part 2: Identity & Access (Terraform Authentik)
 
-The `terraform/authentik/` directory configures Authentik, the SSO/identity provider. It defines applications, authentication flows, user groups, and stores OAuth credentials in Scaleway.
+The `terraform-authentik/` directory configures Authentik, the SSO/identity provider. It defines applications, authentication flows, user groups, and stores OAuth credentials in Scaleway.
 
 ## 2.1 Key Concepts
 
@@ -71,11 +71,10 @@ Admin panel: https://gateway.example.org/if/admin/
 ## 2.3 Directory Structure
 
 ```
-terraform/authentik/
+terraform-authentik/
 ├── providers.tf         # Terraform provider configuration
 ├── variables.tf         # Input variable definitions
-├── terraform.tfvars     # Actual variable values (gitignored, copy from .example)
-├── project_config.tf    # Project-level configuration
+├── terraform.tfvars     # Actual variable values (contains secrets)
 ├── apps.tf              # Application definitions
 ├── user-groups.tf       # User groups
 ├── roles.tf             # RBAC roles
@@ -89,8 +88,7 @@ terraform/authentik/
 │   └── ...
 ├── modules/
 │   ├── app/             # Reusable module for creating apps
-│   ├── bookmark/        # Module for external links
-│   └── traefik-forward-auth/  # Forward auth middleware
+│   └── bookmark/        # Module for external links
 └── outputs.tf
 ```
 
@@ -186,7 +184,7 @@ module "outline" {
   authorization_flow_uuid  = module.flows.default_provider_authorization_implicit_consent_id
   invalidation_flow_uuid   = module.flows.default_invalidation_flow_id
 
-  icon_url = "application-icons/outline-icon.png"
+  icon_name = "application-icons/outline-icon.png"
 
   group_ids = {
     admin           = authentik_group.admin.id
@@ -209,7 +207,7 @@ module "zabbix" {
   application_slug = "zabbix"
   launch_url       = "https://zabbix.example.cc"
   access_level     = "admin"
-  icon_url         = "application-icons/zabbix-icon.png"
+  icon_name         = "application-icons/zabbix-icon.png"
   # ...
 }
 ```
@@ -327,7 +325,7 @@ module "myapp" {
 
 2. Run:
 ```bash
-cd terraform/authentik
+cd terraform-authentik
 terraform plan
 terraform apply
 ```
@@ -380,7 +378,7 @@ The discovery URL returns all endpoints and configuration. Most OIDC libraries c
 ### Apply Configuration Changes
 
 ```bash
-cd terraform/authentik
+cd terraform-authentik
 terraform plan    # Review changes
 terraform apply   # Apply changes
 ```

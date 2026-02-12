@@ -4,8 +4,8 @@
 # Shared Welcome Message Field
 # This field displays a success message after enrollment (manual or social)
 # instructing the user to contact a delegate for activation.
+# Both the default "Continue" button and custom "Return to Home" button redirect to home page.
 resource "authentik_stage_prompt_field" "shared_welcome_message" {
-  # TODO: Add return to home page button that goes through invalidation flow
   name                   = "shared-prompt-field-welcome-message"
   field_key              = "welcome_info"
   label                  = "Welcome, Fellow Worker!"
@@ -13,7 +13,9 @@ resource "authentik_stage_prompt_field" "shared_welcome_message" {
   required               = false
   placeholder            = ""
   placeholder_expression = false
-  initial_value          = file("${path.module}/../assets/enrollment-welcome-message.html")
+  initial_value          = templatefile("${path.module}/../assets/enrollment-welcome-message.html.tpl", {
+    organisation_name = var.organisation_name
+  })
 }
 
 # =============================================================================
@@ -30,7 +32,9 @@ resource "authentik_stage_prompt_field" "shared_aup_text" {
   required               = false
   placeholder            = ""
   placeholder_expression = false
-  initial_value          = file("${path.module}/../assets/acceptable-use-policy.html")
+  initial_value          = templatefile("${path.module}/../assets/acceptable-use-policy.html", {
+    domain = var.domain
+  })
   order                  = 0
 }
 

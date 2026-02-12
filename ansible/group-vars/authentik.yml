@@ -22,7 +22,7 @@ POSTGRES_PORT: "{{ authentik_db_creds.port }}"
 # -----------------------------------------------------------------------------
 AUTHENTIK_SECRET_KEY: "{{ lookup('scaleway.scaleway.scaleway_secret', 'authentik-secret-key') | b64decode }}"
 AUTHENTIK_IMAGE: ghcr.io/goauthentik/server
-AUTHENTIK_TAG: 2025.12.1
+AUTHENTIK_TAG: 2025.12.2
 
 # -----------------------------------------------------------------------------
 # Authentik Admin Configuration
@@ -58,3 +58,18 @@ AUTHENTIK_SMTP_USE_SSL: true
 # Traefik Configuration (inherited from all.yml)
 # -----------------------------------------------------------------------------
 TRAEFIK_EMAIL: "{{ traefik_email }}"
+
+# -----------------------------------------------------------------------------
+# S3 Storage Configuration (for media files)
+# -----------------------------------------------------------------------------
+# All S3 config comes from Scaleway Secret Manager (populated by Terraform)
+authentik_s3_config: "{{ lookup('scaleway.scaleway.scaleway_secret', 'authentik-s3-credentials') | b64decode | from_json }}"
+
+AUTHENTIK_STORAGE_BACKEND: "s3"
+AUTHENTIK_STORAGE_S3_ACCESS_KEY: "{{ authentik_s3_config.access_key }}"
+AUTHENTIK_STORAGE_S3_SECRET_KEY: "{{ authentik_s3_config.secret_key }}"
+AUTHENTIK_STORAGE_S3_BUCKET_NAME: "{{ authentik_s3_config.bucket_name }}"
+AUTHENTIK_STORAGE_S3_REGION: "{{ authentik_s3_config.region }}"
+AUTHENTIK_STORAGE_S3_ENDPOINT: "{{ authentik_s3_config.endpoint }}"
+AUTHENTIK_STORAGE_S3_CUSTOM_DOMAIN: "{{ authentik_s3_config.custom_domain }}"
+AUTHENTIK_STORAGE_S3_SECURE_URLS: "true"

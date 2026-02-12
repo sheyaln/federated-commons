@@ -24,7 +24,7 @@ terraform {
     endpoints = {
       s3 = "https://s3.fr-par.scw.cloud"
     }
-    bucket = "your-terraform-state-bucket"  # Update to your bucket name
+    bucket = "obs-terraform-state-prod-0"  # Update to your bucket name
 
     # encrypt      = true
     use_lockfile = true

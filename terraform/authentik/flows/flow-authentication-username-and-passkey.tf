@@ -9,8 +9,8 @@
 
 # Local Authentication Flow
 resource "authentik_flow" "authentication_flow_username_and_passkey" {
-  name               = "Organization Gateway"  # Update to your organization name
-  title              = "Organization Gateway"  # Update to your organization name
+  name               = "${var.organisation_name} Gateway"
+  title              = "${var.organisation_name} Gateway"
   slug               = "authentication-local-username-and-passkey"
   designation        = "authentication"
   authentication     = "none"
@@ -18,7 +18,7 @@ resource "authentik_flow" "authentication_flow_username_and_passkey" {
   policy_engine_mode = "any"
   compatibility_mode = true
   denied_action      = "message_continue"
-  background         = "/static/dist/custom-assets/background.jpg"  # Update to your custom background
+  background         = var.flow_background
 }
 
 # Flow Stage Bindings

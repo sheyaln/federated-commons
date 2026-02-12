@@ -129,7 +129,7 @@ See 0.6.
 
 ## 0.5 Environment Variables
 
-Create `~/.fc-env` (Federated Commons environment):
+Create `~/.obs-env` (Federated Commons environment):
 
 ```bash
 # Scaleway API
@@ -157,8 +157,8 @@ export GITHUB_TOKEN="your-github-pat"
 Add to `~/.zshrc` or `~/.bashrc`:
 
 ```bash
-if [ -f ~/.fc-env ]; then
-    source ~/.fc-env
+if [ -f ~/.obs-env ]; then
+    source ~/.obs-env
 fi
 ```
 
@@ -197,7 +197,7 @@ cd federated-commons
 ### Test Terraform
 
 ```bash
-cd terraform/infrastructure
+cd terraform-scaleway-infra
 terraform init
 terraform state list
 ```
@@ -205,7 +205,7 @@ terraform state list
 ### Test Ansible Secret Access
 
 ```bash
-cd ../ansible
+cd ../ansible-vps
 ansible localhost -m debug -a "msg={% raw %}{{ lookup('scaleway.scaleway.scaleway_secret', 'smtp-config') | b64decode }}{% endraw %}"
 ```
 

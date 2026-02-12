@@ -9,7 +9,7 @@ Secrets are stored in Scaleway Secret Manager. Terraform creates them, you fill 
 
 ## 5.1 Secret Flow
 
-1. Terraform creates secret in Scaleway (terraform/infrastructure/secrets.tf or terraform/authentik)
+1. Terraform creates secret in Scaleway (terraform-scaleway-infra/secrets/ or terraform-authentik)
 2. Terraform stores generated value as secret version
 3. Ansible reads secret using lookup plugin
 4. Ansible injects secret into .env file
@@ -19,7 +19,7 @@ Secrets are stored in Scaleway Secret Manager. Terraform creates them, you fill 
 
 ### Database Credentials
 
-Created by: `terraform/infrastructure/modules/storage/postgres/`
+Created by: `terraform-scaleway-infra/modules/storage/postgres/`
 
 Naming: `postgres-{dbname}-credentials`
 
@@ -46,7 +46,7 @@ PG_PASS: "{% raw %}{{ outline_db_creds.password }}{% endraw %}"
 
 ### OAuth Credentials
 
-Created by: `terraform/authentik/modules/app/secrets.tf`
+Created by: `terraform-authentik/modules/app/secrets.tf`
 
 Naming: `authentik-app-{slug}`
 
@@ -69,7 +69,7 @@ OIDC_CLIENT_SECRET: "{% raw %}{{ (lookup('scaleway.scaleway.scaleway_secret', 'a
 
 ### Application Secrets
 
-Created by: `terraform/infrastructure/secrets.tf`
+Created by: `terraform-scaleway-infra/secrets/{app}.tf`
 
 Naming: `{app}-secret-key`, `{app}-api-token`, etc.
 
@@ -103,7 +103,7 @@ smtp_host: "{% raw %}{{ (lookup('scaleway.scaleway.scaleway_secret', 'smtp-confi
 
 ### Via Terraform (Preferred)
 
-In `terraform/infrastructure/secrets.tf` (add to existing file):
+In `terraform-scaleway-infra/secrets/myapp.tf`:
 
 ```hcl
 locals {
@@ -220,7 +220,7 @@ ufw_default_outgoing: allow
 
 ### Security Groups (Cloud Level)
 
-In `terraform/infrastructure/compute-groups.tf`:
+In `terraform-scaleway-infra/compute-groups.tf`:
 
 Same ports as UFW plus Wazuh ports (1514, 1515).
 

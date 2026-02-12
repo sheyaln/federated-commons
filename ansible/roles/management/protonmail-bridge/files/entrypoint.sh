@@ -57,6 +57,16 @@ init_pass() {
     fi
 }
 
+# Start socat forwarders so other containers can reach the bridge.
+# Proton Bridge binds to 127.0.0.1 only; socat exposes it on 0.0.0.0.
+start_forwarders() {
+    echo "Starting socat forwarders (0.0.0.0 -> 127.0.0.1)..."
+    socat TCP-LISTEN:11143,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:1143 &
+    socat TCP-LISTEN:11025,fork,reuseaddr,bind=0.0.0.0 TCP:127.0.0.1:1025 &
+    echo "  IMAP forwarder: 0.0.0.0:11143 -> 127.0.0.1:1143"
+    echo "  SMTP forwarder: 0.0.0.0:11025 -> 127.0.0.1:1025"
+}
+
 # Main
 echo "========================================"
 echo " Proton Mail Bridge - Starting"
@@ -66,9 +76,9 @@ init_gpg
 init_pass
 
 echo ""
+start_forwarders
+echo ""
 echo "Starting Proton Mail Bridge..."
-echo "  IMAP: 0.0.0.0:1143"
-echo "  SMTP: 0.0.0.0:1025"
 echo ""
 
 # Execute the bridge with any passed arguments

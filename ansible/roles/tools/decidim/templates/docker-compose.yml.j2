@@ -205,14 +205,14 @@ services:
       - "traefik.http.services.decidim.loadbalancer.server.port=3000"
       # Voting domain router
       # TODO: Re-enable Authentik SSO once outpost is configured correctly
-      # - "traefik.http.routers.decidim.middlewares=authentik@docker"
+      # - "traefik.http.routers.decidim.middlewares=authentik-auth@docker"
       - "traefik.http.routers.decidim.rule=Host(`voting.{{ default_domain | default(tools_domain) }}`)"
       - "traefik.http.routers.decidim.entrypoints=websecure"
       - "traefik.http.routers.decidim.tls.certresolver=le"
       - "traefik.http.routers.decidim.service=decidim"
       # Decidim domain router
       # TODO: Re-enable Authentik SSO once outpost is configured correctly
-      # - "traefik.http.routers.decidim-alt.middlewares=authentik@docker"
+      # - "traefik.http.routers.decidim-alt.middlewares=authentik-auth@docker"
       - "traefik.http.routers.decidim-alt.rule=Host(`decidim.{{ default_domain | default(tools_domain) }}`)"
       - "traefik.http.routers.decidim-alt.entrypoints=websecure"
       - "traefik.http.routers.decidim-alt.tls.certresolver=le"

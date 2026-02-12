@@ -61,6 +61,7 @@ Tables and commands for fast lookup.
 | outline | tools-prod | Outline wiki |
 | espocrm | tools-prod | EspoCRM |
 | nextcloud-suite | tools-prod | Nextcloud + OnlyOffice |
+| leantime | tools-prod | Leantime |
 | wobbler | management | Script server |
 | n8n | management | n8n automation |
 
@@ -147,11 +148,10 @@ ansible localhost -m debug -a "msg={% raw %}{{ lookup('scaleway.scaleway.scalewa
 
 ```
 federated-commons/
-├── terraform/
-│   ├── infrastructure/          # Cloud infrastructure
-│   ├── authentik/               # SSO configuration
-│   └── grafana/                 # Monitoring dashboards
-├── ansible/                     # Server configuration
+├── terraform-scaleway-infra/    # Cloud infrastructure
+├── terraform-authentik/         # SSO configuration
+├── terraform-grafana/           # Monitoring dashboards
+├── ansible-vps/                 # Server configuration
 │   ├── inventory.ini
 │   ├── playbook-*.yml
 │   ├── group-vars/

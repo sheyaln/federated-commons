@@ -172,7 +172,7 @@
                         "type": "prometheus",
                         "uid": "${prometheus_uid}"
                     },
-                    "expr": "rate(container_cpu_usage_seconds_total{job=\"cadvisor-tools-prod\", name=~\".*(outline|nextcloud|onlyoffice|privacy-policy|decidim|erpnext|n8n).*\", name!=\"\"}[5m]) * 100",
+                    "expr": "rate(container_cpu_usage_seconds_total{job=\"cadvisor-tools-prod\", name=~\".*(outline|leantime|nextcloud|onlyoffice|privacy-policy|decidim|dolibarr|erpnext|zammad|n8n).*\", name!=\"\"}[5m]) * 100",
                     "legendFormat": "{{name}}",
                     "refId": "A"
                 }
@@ -235,7 +235,7 @@
                         "type": "prometheus",
                         "uid": "${prometheus_uid}"
                     },
-                    "expr": "container_memory_usage_bytes{job=\"cadvisor-tools-prod\", name=~\".*(outline|nextcloud|onlyoffice|privacy-policy|decidim|erpnext|n8n).*\", name!=\"\"} / 1024 / 1024",
+                    "expr": "container_memory_usage_bytes{job=\"cadvisor-tools-prod\", name=~\".*(outline|leantime|nextcloud|onlyoffice|privacy-policy|decidim|dolibarr|erpnext|zammad|n8n).*\", name!=\"\"} / 1024 / 1024",
                     "legendFormat": "{{name}}",
                     "refId": "A"
                 }
@@ -479,7 +479,7 @@
                         "type": "prometheus",
                         "uid": "${prometheus_uid}"
                     },
-                    "expr": "clamp_min(changes(container_start_time_seconds{job=\"cadvisor-tools-prod\", name=~\".*(outline|nextcloud|onlyoffice|privacy-policy|decidim|erpnext|n8n).*\", name!=\"\"}[1h]), 0)",
+                    "expr": "clamp_min(changes(container_start_time_seconds{job=\"cadvisor-tools-prod\", name=~\".*(outline|leantime|nextcloud|onlyoffice|privacy-policy|decidim|dolibarr|erpnext|zammad|n8n).*\", name!=\"\"}[1h]), 0)",
                     "legendFormat": "{{name}}",
                     "refId": "A"
                 }

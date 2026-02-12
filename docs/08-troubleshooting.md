@@ -176,7 +176,7 @@ docker logs authentik-server --tail 50
 ### OAuth Redirect Error
 
 Redirect URI mismatch. Check:
-- terraform/authentik/apps.tf has correct redirect_uri
+- terraform-authentik/apps.tf has correct redirect_uri
 - Application config matches
 
 ### "Invalid token"
@@ -207,7 +207,7 @@ ansible localhost -m debug -a "msg={% raw %}{{ lookup('scaleway.scaleway.scalewa
 
 ### "Database does not exist"
 
-Database not created. Check terraform/infrastructure/storage.tf includes database name.
+Database not created. Check terraform-scaleway-infra/storage.tf includes database name.
 
 ## 8.8 Monitoring Issues
 
@@ -251,7 +251,7 @@ dig myapp.example.org
 ```
 
 If no answer:
-- Check terraform/infrastructure/dns.tf
+- Check terraform-scaleway-infra/dns.tf
 - Run terraform apply
 - Wait for propagation (up to 1 hour)
 

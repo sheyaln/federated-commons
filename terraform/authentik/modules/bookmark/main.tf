@@ -27,7 +27,7 @@ resource "authentik_application" "bookmark" {
   # UI settings
   meta_description = var.description
   open_in_new_tab  = var.open_in_new_tab
-  meta_icon        = var.icon_url != null ? var.icon_url : "application-icons/default-logo.png"  # Update to your organization's logo
+  meta_icon        = var.icon_url != null ? var.icon_url : "default-logo.png"  # Update to your organization's logo
 
   # Policy engine mode - ANY means user needs to match any binding
   # ALL means user needs to match all bindings

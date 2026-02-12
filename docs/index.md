@@ -77,10 +77,10 @@ Plus managed services:
 
 ## About This Project
 
-This infrastructure is designed to be reusable. Worker cooperatives, unions, and nonprofits can deploy their own instance with their own domain, users, and applications while following the same patterns.
+This infrastructure is designed to be reusable. IWW branches, worker cooperatives, unions, and nonprofits can deploy their own instance with their own domain, users, and applications while following the same patterns.
 
 The goal is to give worker-led organizations the same quality of digital infrastructure that corporations have, without depending on corporate platforms.
 
 ---
 
-[View on GitHub](https://github.com/sheyaln/federated-commons)*
+*This documentation is open source. [View on GitHub](https://github.com/sheyaln/federated-commons)*

@@ -37,6 +37,7 @@
   vars_files:
     - group-vars/all.yml
     - group-vars/core.yml
+    - group-vars/management-ufw.yml
     - group-vars/wazuh.yml
   roles:
     - core/fail2ban
@@ -156,6 +157,20 @@
     - group-vars/n8n.yml
   roles:
     - management/n8n
+
+# ============================================
+# BACKUP MANAGEMENT
+# ============================================
+
+- name: Deploy Backrest backup manager
+  hosts: management
+  tags: backrest
+  become: true
+  vars_files:
+    - group-vars/all.yml
+    - group-vars/backrest.yml
+  roles:
+    - management/backrest
 
 # ============================================
 # WOBBLER

@@ -1,11 +1,11 @@
 # User Activation Notification Policy
-# Sends email and optional webhook notifications when a user is activated
+# Sends email and Slack notifications when a user is activated
 #
 # Template variables:
-#   - n8n_webhook_url: URL for n8n webhook (empty string disables webhook)
+#   - n8n_webhook_url: URL for n8n webhook
 #   - tools_domain: Domain for tools (e.g., example.org)
 #   - org_name: Organization name
-#   - test_mode: "True" or "False" - controls notification recipients
+#   - test_mode: "true" or "false" - controls notification recipients
 
 from django.core.mail import send_mail
 from authentik.core.models import User, Group, UserSourceConnection
@@ -23,9 +23,10 @@ N8N_WEBHOOK_URL = "${n8n_webhook_url}"
 # Set to False to notify both admin and union-delegate groups (production)
 TEST_MODE = ${test_mode}
 
-def send_webhook_notification(event_type, user_data):
-    """Send notification via webhook (e.g., to n8n for Slack integration)"""
+def send_n8n_notification(event_type, user_data):
+    """Send Slack notification via n8n webhook (separate from email)"""
     if not N8N_WEBHOOK_URL:
+        ak_logger.warning("N8N webhook URL not configured, skipping Slack notification")
         return False
     
     payload = {
@@ -42,10 +43,10 @@ def send_webhook_notification(event_type, user_data):
             headers={'Content-Type': 'application/json'}
         )
         urllib.request.urlopen(req, timeout=10)
-        ak_logger.info(f"Sent {event_type} webhook notification for {user_data.get('email', 'unknown')}")
+        ak_logger.info(f"Sent {event_type} Slack notification to n8n for {user_data.get('email', 'unknown')}")
         return True
     except Exception as e:
-        ak_logger.error(f"Failed to send webhook notification: {e}")
+        ak_logger.error(f"Failed to send n8n Slack notification: {e}")
         return False
 
 # Get the event from context - in notification rules, this is passed as the Event object
@@ -55,6 +56,8 @@ if not event:
     return False
 
 # Handle both Event model instances and serialized event references
+# In notification rules, we may receive a serialized reference that we need to look up
+# NOTE: The Event model's 'user' field is a JSONField (dict), not a ForeignKey!
 event_action = None
 event_context = {}
 event_user_info = {}
@@ -69,10 +72,12 @@ def extract_user_info_from_dict(user_dict):
     }
 
 if isinstance(event, Event):
+    # Direct Event model instance - user is a JSONField (dict)
     event_action = event.action
     event_context = event.context or {}
     event_user_info = extract_user_info_from_dict(event.user)
 elif isinstance(event, dict):
+    # Serialized event reference - need to look up the actual event
     event_pk = event.get("pk")
     if event_pk:
         actual_event = Event.objects.filter(pk=event_pk).first()
@@ -87,6 +92,7 @@ elif isinstance(event, dict):
         ak_logger.warning(f"Event dict has no pk: {event}")
         return False
 else:
+    # Try to access as object with attributes - user is still a dict
     event_action = getattr(event, 'action', None)
     event_context = getattr(event, 'context', {}) or {}
     event_user_dict = getattr(event, 'user', None)
@@ -141,19 +147,24 @@ if event_user_info.get("email"):
     activated_by = event_user_info.get("name") or event_user_info.get("email")
     activated_by_email = event_user_info.get("email")
 
-# Detect signup method
+# Detect signup method - first check user attributes (set during signup), then source connections
 signup_method = "email/password"
 login_instruction = ""
 try:
+    # First, check user attributes (stored during signup notification)
     stored_method = user.attributes.get("signup_method")
     if stored_method:
         signup_method = stored_method
+        ak_logger.info(f"Using stored signup method from user attributes: {signup_method}")
     else:
+        # Fallback: check source connections
         source_connections = UserSourceConnection.objects.filter(user=user)
         if source_connections.exists():
             source = source_connections.first().source
             signup_method = source.name if source else "social login"
+            ak_logger.info(f"Detected signup method from source connection: {signup_method}")
     
+    # Set login instruction based on signup method
     if signup_method != "email/password":
         login_instruction = f"\nLog in using {signup_method}."
     else:
@@ -177,7 +188,9 @@ Your account on the ${org_name} Gateway has been activated.
 
 You can now log in at: https://gateway.${tools_domain}/{login_instruction}
 
-If you have any questions, please contact your administrator.
+If you have any questions, please contact your union delegate.
+
+Welcome aboard, fellow worker!
 
 --
 ${org_name} Gateway
@@ -200,6 +213,7 @@ except Exception as e:
 email_to_admins_sent = False
 try:
     admin_recipients = set()
+    # Use TEST_MODE to control which groups receive notifications
     notification_groups = ["admin"] if TEST_MODE else ["admin", "union-delegate"]
     for group_name in notification_groups:
         try:
@@ -238,11 +252,12 @@ except Exception as e:
     ak_logger.error(f"Failed to send admin activation email: {e}")
 
 # =========================================================================
-# 3. SEND WEBHOOK NOTIFICATION (independent of email)
+# 3. SEND SLACK NOTIFICATION VIA N8N (independent of email)
 # =========================================================================
+# Get slack_thread_ts from user attributes (stored during signup)
 slack_thread_ts = user.attributes.get("slack_thread_ts", "")
 
-webhook_sent = send_webhook_notification("user_activation", {
+slack_sent = send_n8n_notification("user_activation", {
     "email": user.email,
     "username": user.username,
     "name": user_display,
@@ -253,9 +268,10 @@ webhook_sent = send_webhook_notification("user_activation", {
 })
 
 # Mark as sent if at least one notification succeeded
-if email_to_user_sent or email_to_admins_sent or webhook_sent:
+if email_to_user_sent or email_to_admins_sent or slack_sent:
     user.attributes["activation_notification_sent"] = True
     user.save()
-    ak_logger.info(f"Activation notifications completed for {user.email}: email_user={email_to_user_sent}, email_admins={email_to_admins_sent}, webhook={webhook_sent}")
+    ak_logger.info(f"Activation notifications completed for {user.email}: email_user={email_to_user_sent}, email_admins={email_to_admins_sent}, slack={slack_sent}")
 
+# Return True to indicate policy passed (doesn't affect notification delivery)
 return True

@@ -147,11 +147,12 @@
     "{{ nextcloud_domain | default('cloud.' + tools_domain) }}"
     "{{ onlyoffice_domain | default('docs.' + tools_domain) }}"
     "{{ jwt_secret | default('') }}"
-    "{{ nextcloud_admin_user | default('fc-admin') }}"
+    "{{ nextcloud_admin_user | default('obs-admin') }}"
     "{{ nextcloud_admin_password }}"
     "{{ oidc_client_id | default('') }}"
     "{{ oidc_client_secret | default('') }}"
     "{{ oidc_issuer | default('https://' + gateway_domain + '/application/o/sabo-cloud') }}"
+    "{{ n8n_form_webhook_url | default('') }}"
   # when: nextcloud_status is succeeded and onlyoffice_status is succeeded
 
 - name: Display deployment summary

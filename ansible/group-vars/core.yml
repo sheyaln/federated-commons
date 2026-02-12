@@ -1,28 +1,7 @@
 # Core Infrastructure Variables
 
-# UFW Configuration
-ufw_logging_level: "low" # Options: off, low, medium, high, full
-ssh_port: 22
-
 # Docker Configuration
 docker_swarm_enabled: false
-
-# Custom UFW rules (example - customize as needed)
-ufw_custom_rules:
-  []
-  # Example: Allow specific IP to access a service
-  # - rule: allow
-  #   port: "8080"
-  #   proto: tcp
-  #   from_ip: "192.168.1.100"
-  #   comment: "Allow specific IP to access admin panel"
-
-  # Example: Allow local network access to monitoring
-  # - rule: allow
-  #   port: "3000"
-  #   proto: tcp
-  #   from_ip: "192.168.0.0/16"
-  #   comment: "Allow local network access to Grafana"
 
 # Fail2Ban Configuration
 fail2ban_enabled: true
@@ -31,4 +10,3 @@ fail2ban_enabled: true
 traefik_enabled: true
 traefik_email: "{{ infra_email }}"
 traefik_acme_bucket: "traefik-acme-bucket"
-

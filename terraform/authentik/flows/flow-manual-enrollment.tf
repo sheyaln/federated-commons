@@ -2,8 +2,8 @@
 
 # Main Manual Enrollment Flow
 resource "authentik_flow" "manual_enrollment" {
-  name               = "Manual Enrollment"
-  title              = "Join Us"  # Update with your organization name
+  name               = "${var.organisation_name} Manual Enrollment"
+  title              = "Join ${var.organisation_name}"
   slug               = "manual-enrollment"
   designation        = "enrollment"
   authentication     = "require_unauthenticated"
@@ -11,7 +11,7 @@ resource "authentik_flow" "manual_enrollment" {
   policy_engine_mode = "any"
   compatibility_mode = true
   denied_action      = "message_continue"
-  background         = "/static/dist/custom-assets/background.jpg"  # Update to your custom background
+  background         = var.flow_background
 }
 
 # PROMPT FIELDS
@@ -157,12 +157,14 @@ resource "authentik_flow_stage_binding" "manual_enrollment_email_verification_bi
 }
 
 # Step 4.5: Welcome Message
+# Note: evaluate_on_plan=false and re_evaluate_policies=true ensures the notification
+# policy runs AFTER user_write has created the user, so the user is in context
 resource "authentik_flow_stage_binding" "manual_enrollment_welcome_binding" {
   target               = authentik_flow.manual_enrollment.uuid
   stage                = authentik_stage_prompt.manual_enrollment_welcome.id
   order                = 35
-  evaluate_on_plan     = true
-  re_evaluate_policies = false
+  evaluate_on_plan     = false
+  re_evaluate_policies = true
 }
 
 # Step 5: MFA Setup

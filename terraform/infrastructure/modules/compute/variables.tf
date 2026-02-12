@@ -49,7 +49,7 @@ variable "tags" {
 }
 
 variable "security_group_id" {
-  description = "Security group ID (must be provided for your deployment)"
+  description = "Security group ID to assign to this instance"
   type        = string
 }
 

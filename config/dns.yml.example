@@ -4,7 +4,7 @@
 # This file defines applications and their DNS records.
 # Terraform reads this file to generate DNS records dynamically.
 #
-# COPY THIS FILE: cp dns.yml.example dns.yml
+# COPY THIS FILE: cp apps.yml.example apps.yml
 # Then customize for your deployment.
 #
 # NOTE: Domains are defined in project.yml. This file only defines which
@@ -88,6 +88,11 @@ dns_records:
       server: "tools"
       description: "Decidim (alternate subdomain)"
     
+    - subdomain: "dash"
+      type: "A"
+      server: "tools"
+      description: "Leantime project management"
+    
     - subdomain: "cryptpad"
       type: "A"
       server: "tools"
@@ -97,6 +102,11 @@ dns_records:
       type: "A"
       server: "tools"
       description: "N8N workflow automation"
+    
+    - subdomain: "support"
+      type: "A"
+      server: "tools"
+      description: "Zammad helpdesk"
     
     # --- Test/Development ---
     - subdomain: "test-decidim"

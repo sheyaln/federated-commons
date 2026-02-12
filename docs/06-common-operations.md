@@ -159,7 +159,7 @@ Full process:
 
 ### 1. Create DNS Record
 
-In `terraform/infrastructure/dns.tf`:
+In `terraform-scaleway-infra/dns.tf`:
 ```hcl
 resource "scaleway_domain_record" "myapp" {
   dns_zone = scaleway_domain_zone.your_domain.id
@@ -171,13 +171,13 @@ resource "scaleway_domain_record" "myapp" {
 ```
 
 ```bash
-cd terraform/infrastructure
+cd terraform-scaleway-infra
 terraform apply
 ```
 
 ### 2. Create Secrets
 
-In `terraform/infrastructure/secrets.tf` (add to existing file):
+In `terraform-scaleway-infra/secrets/myapp.tf`:
 ```hcl
 # Create necessary secrets
 ```
@@ -188,7 +188,7 @@ terraform apply
 
 ### 3. Create Authentik Application
 
-In `terraform/authentik/apps.tf`:
+In `terraform-authentik/apps.tf`:
 ```hcl
 module "myapp" {
   source = "./modules/app"
@@ -197,14 +197,14 @@ module "myapp" {
 ```
 
 ```bash
-cd terraform/authentik
+cd terraform-authentik
 terraform apply
 ```
 
 ### 4. Create Ansible Role
 
 ```bash
-cd ansible
+cd ansible-vps
 mkdir -p roles/tools/myapp/{tasks,templates}
 ```
 
@@ -319,7 +319,7 @@ ssh tools-prod "journalctl -u docker -n 100"
 ### Terraform Changes
 
 ```bash
-cd terraform/infrastructure
+cd terraform-scaleway-infra
 terraform plan  # Review changes
 terraform apply
 ```
@@ -327,7 +327,7 @@ terraform apply
 ### Ansible Changes
 
 ```bash
-cd ansible
+cd ansible-vps
 ansible-playbook playbook-tools-prod.yml -i inventory.ini --tags {tag}
 ```
 

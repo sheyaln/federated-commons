@@ -7,7 +7,7 @@ module "tools_prod" {
   image              = var.image
   disk_size          = 100
   disk_type          = "sbs_volume"
-  private_network_id = scaleway_vpc_private_network.fc_network_prod.id
+  private_network_id = scaleway_vpc_private_network.network_prod.id
   tags               = ["tools", "prod"]
   protected          = true
   security_group_id  = scaleway_instance_security_group.tools_group.id
@@ -23,7 +23,7 @@ module "management" {
   image              = var.image
   disk_size          = 80
   disk_type          = "sbs_volume"
-  private_network_id = scaleway_vpc_private_network.fc_network_prod.id
+  private_network_id = scaleway_vpc_private_network.network_prod.id
   tags               = ["management"]
   security_group_id  = scaleway_instance_security_group.management_group.id
 }
@@ -39,7 +39,7 @@ module "tools_staging" {
   image              = var.image
   disk_size          = 80
   disk_type          = "sbs_volume"
-  private_network_id = scaleway_vpc_private_network.fc_network_prod.id
+  private_network_id = scaleway_vpc_private_network.network_prod.id
   tags               = ["tools", "staging"]
   security_group_id  = scaleway_instance_security_group.tools_group.id
 }
@@ -52,7 +52,7 @@ module "authentik_prod" {
   image              = var.image
   disk_size          = 45
   disk_type          = "sbs_volume"
-  private_network_id = scaleway_vpc_private_network.fc_network_prod.id
+  private_network_id = scaleway_vpc_private_network.network_prod.id
   tags               = ["authentik", "prod"]
   security_group_id  = scaleway_instance_security_group.authentik_group.id
 }

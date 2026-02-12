@@ -22,12 +22,18 @@ resource "authentik_flow" "user_invitation_flow" {
   layout             = "stacked"
   denied_action      = "message"
   policy_engine_mode = "all"
-  background         = "/static/dist/custom-assets/background.jpg"  # Update to your custom background
+  background         = var.flow_background
 }
 
 # =============================================================================
 # STAGES
 # =============================================================================
+
+# Invitation Stage - Validates the invitation token from ?itoken= parameter
+resource "authentik_stage_invitation" "invitation_validation" {
+  name                             = "invitation-stage-validation"
+  continue_flow_without_invitation = false # Require valid invitation token
+}
 
 # Welcome Stage - Shows social login options prominently with manual fallback
 resource "authentik_stage_prompt" "invitation_welcome" {
@@ -75,7 +81,7 @@ resource "authentik_stage_email" "invitation_email_verification" {
   use_tls      = false
   use_ssl      = true
   timeout      = 30
-  from_address = "${local.gateway_email}"
+  from_address = local.gateway_email
 
   subject                  = "Verify your email - ${var.organisation_name}"
   activate_user_on_success = true
@@ -95,7 +101,9 @@ resource "authentik_stage_prompt_field" "invitation_welcome_message" {
   required               = false
   placeholder            = ""
   placeholder_expression = false
-  initial_value          = file("${path.module}/../assets/invitation-welcome.html")
+  initial_value          = templatefile("${path.module}/../assets/invitation-welcome.html.tpl", {
+    organisation_name = var.organisation_name
+  })
   order                  = 0
 }
 
@@ -150,6 +158,15 @@ resource "authentik_stage_prompt_field" "invitation_password_repeat" {
 # =============================================================================
 # FLOW STAGE BINDINGS
 # =============================================================================
+
+# Stage 0: Validate invitation token (must be first)
+resource "authentik_flow_stage_binding" "invitation_validation_binding" {
+  target               = authentik_flow.user_invitation_flow.uuid
+  stage                = authentik_stage_invitation.invitation_validation.id
+  order                = 0
+  evaluate_on_plan     = true
+  re_evaluate_policies = false
+}
 
 # Stage 1: Welcome prompt with social login options
 resource "authentik_flow_stage_binding" "invitation_welcome_binding" {
@@ -285,7 +302,7 @@ resource "authentik_stage_email" "send_user_invitation" {
   use_tls      = false
   use_ssl      = true
   timeout      = 30
-  from_address = "${local.gateway_email}"
+  from_address = local.gateway_email
 
   subject                  = "You're invited to join ${var.organisation_name}!"
   activate_user_on_success = false

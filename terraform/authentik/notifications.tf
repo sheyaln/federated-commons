@@ -1,10 +1,9 @@
 # EVENT NOTIFICATIONS
 #
 # This file configures Authentik event-based notifications for user lifecycle events.
-# When configured with an n8n webhook URL, notifications are also sent to n8n
-# which can handle Slack messages, threaded replies, and other integrations.
-#
-# To enable: set the n8n_webhook_user_notifications variable in terraform.tfvars
+# Notifications are sent to n8n webhook which handles:
+#   - Slack messages with threading (activation replies to signup)
+#   - Email notifications to users and admins
 
 # =============================================================================
 # CONFIGURATION
@@ -48,7 +47,7 @@ resource "authentik_policy_expression" "user_activated_send_email" {
   name              = "policy-user-activated-send-email"
   execution_logging = true
   expression        = templatefile("${path.module}/expressions/policy-user-activation-notification.py.tpl", {
-    n8n_webhook_url = var.n8n_webhook_user_notifications
+    n8n_webhook_url = local.n8n_webhook_user_notifications
     tools_domain    = local.tools_domain
     org_name        = local.org_name
     test_mode       = local.activation_test_mode ? "True" : "False"

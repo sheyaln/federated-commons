@@ -1,5 +1,5 @@
 <div style="text-align: center; padding: 20px;">
-  <h2 style="margin-bottom: 10px; color: #333;">Welcome!</h2>
+  <h2 style="margin-bottom: 10px; color: #333;">Welcome to ${organisation_name}!</h2>
   <p style="color: #666; margin-bottom: 30px; font-size: 16px;">
     You've been invited to join. Choose how you'd like to create your account:
   </p>

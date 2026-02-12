@@ -11,12 +11,6 @@ output "authentication_flow_login" {
   value       = authentik_flow.authentication_flow_username_and_passkey.uuid
 }
 
-# Backwards compatibility alias
-output "authentication_flow_local_login" {
-  description = "DEPRECATED: Use authentication_flow_login instead"
-  value       = authentik_flow.authentication_flow_username_and_passkey.uuid
-}
-
 # Default Flow Data Source Outputs
 output "default_source_authentication_id" {
   description = "ID of the default source authentication flow"

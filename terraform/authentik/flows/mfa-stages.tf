@@ -35,7 +35,7 @@ resource "authentik_stage_authenticator_email" "shared_email" {
   timeout             = 30
   token_expiry        = "minutes=15"
   from_address        = local.gateway_email
-  subject             = "Your One-Time Passcode"  # Update with your organization name
+  subject             = "Your ${var.organisation_name} One-Time Passcode"
   template            = "email/email_otp.html"
 }
 

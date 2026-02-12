@@ -21,7 +21,7 @@ n8n_oidc_creds:
 # Proton Mail Bridge integration
 # Enable to connect n8n to the protonmail Docker network for IMAP/SMTP access
 # Requires protonmail-bridge role to be deployed first
-enable_protonmail: false
+enable_protonmail: true
 
 
 

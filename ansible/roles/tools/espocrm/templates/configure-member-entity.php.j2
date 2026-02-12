@@ -160,6 +160,11 @@ $memberEntityDefs = [
             'type' => 'varchar',
             'maxLength' => 50
         ],
+        'industrialUnit' => [
+            'type' => 'varchar',
+            'maxLength' => 255,
+            'tooltip' => true
+        ],
         'postalCode' => [
             'type' => 'varchar',
             'maxLength' => 20,
@@ -199,9 +204,15 @@ $memberEntityDefs = [
             'type' => 'enum',
             'options' => [
                 'Reports to Branch',
-                'At Large'
+                'At Large',
+                'Re-initiated'
             ],
-            'default' => 'Reports to Branch'
+            'default' => 'Reports to Branch',
+            'style' => [
+                'Reports to Branch' => 'success',
+                'At Large' => 'warning',
+                'Re-initiated' => 'info'
+            ]
         ],
         'joinDate' => [
             'type' => 'date'
@@ -273,7 +284,7 @@ $memberEntityDefs = [
     'collection' => [
         'orderBy' => 'lastName',
         'order' => 'asc',
-        'textFilterFields' => ['name', 'xNumber', 'email', 'city']
+        'textFilterFields' => ['name', 'xNumber', 'email', 'city', 'industrialUnit']
     ],
     'indexes' => [
         'xNumber' => [
@@ -455,6 +466,12 @@ $memberClientDefs = [
             'filter' => [
                 'branchMembership' => 'At Large'
             ]
+        ],
+        [
+            'name' => 'reInitiated',
+            'filter' => [
+                'branchMembership' => 'Re-initiated'
+            ]
         ]
     ],
     'defaultFilterData' => [
@@ -526,8 +543,12 @@ $memberDetailLayout = [
                 ['name' => 'branchMembership']
             ],
             [
-                ['name' => 'joinDate'],
-                ['name' => 'assignedUser']
+                ['name' => 'industrialUnit'],
+                ['name' => 'joinDate']
+            ],
+            [
+                ['name' => 'assignedUser'],
+                false
             ]
         ]
     ],
@@ -555,13 +576,14 @@ $memberDetailLayout = [
 ];
 
 $memberListLayout = [
-    ['name' => 'xNumber', 'width' => 10],
-    ['name' => 'name', 'width' => 18, 'link' => true],
-    ['name' => 'email', 'width' => 18],
-    ['name' => 'city', 'width' => 12],
+    ['name' => 'xNumber', 'width' => 8],
+    ['name' => 'name', 'width' => 15, 'link' => true],
+    ['name' => 'email', 'width' => 15],
+    ['name' => 'city', 'width' => 10],
+    ['name' => 'industrialUnit', 'width' => 14],
     ['name' => 'membershipStatus', 'width' => 12],
     ['name' => 'branchMembership', 'width' => 12],
-    ['name' => 'assignedUser', 'width' => 12]
+    ['name' => 'assignedUser', 'width' => 10]
 ];
 
 $duesPaymentDetailLayout = [
@@ -651,6 +673,7 @@ $memberLabels = [
         'city' => 'City',
         'streetAddress' => 'Street Address',
         'state' => 'State',
+        'industrialUnit' => 'Industrial Unit (IU)',
         'postalCode' => 'Postal Code',
         'membershipStatus' => 'Membership Status',
         'duesTier' => 'Dues Tier',
@@ -662,7 +685,8 @@ $memberLabels = [
         'description' => 'Notes'
     ],
     'tooltips' => [
-        'xNumber' => 'Membership card number (e.g., X123456)'
+        'xNumber' => 'IWW membership card number (e.g., X123456)',
+        'industrialUnit' => 'IWW Industrial Union number and name (e.g., Greenhouse and Nursery Workers IU 140)'
     ],
     'links' => [
         'duesPayments' => 'Dues Payments',
@@ -685,11 +709,13 @@ $memberLabels = [
         ],
         'branchMembership' => [
             'Reports to Branch' => 'Reports to Branch',
-            'At Large' => 'At Large'
+            'At Large' => 'At Large',
+            'Re-initiated' => 'Re-initiated'
         ]
     ],
     'filters' => [
         'goodStanding' => 'Good Standing',
+        'reInitiated' => 'Re-initiated',
         'inArrears' => 'In Arrears',
         'reportsToBranch' => 'Reports to Branch',
         'atLarge' => 'At Large'

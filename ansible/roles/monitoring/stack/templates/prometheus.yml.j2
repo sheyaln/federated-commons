@@ -2,7 +2,7 @@ global:
   scrape_interval: {{ prometheus_scrape_interval }}
   evaluation_interval: {{ prometheus_scrape_interval }}
   external_labels:
-    cluster: "{{ project_name | default('fc') }}"
+    cluster: "{{ project_name | default('obs') }}"
     environment: production
 
 rule_files:

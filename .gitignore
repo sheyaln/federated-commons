@@ -21,10 +21,6 @@ override.tf.json
 .terraformrc
 terraform.rc
 
-# Local/deployment-specific terraform files (use .example templates)
-*_local.tf
-!*_local.tf.example
-
 # -----------------------------------------------------------------------------
 # Ansible
 # -----------------------------------------------------------------------------
@@ -33,17 +29,15 @@ terraform.rc
 .vault_pass.txt
 .vault-password
 ansible/staging.env
-ansible/inventory.ini
-!ansible/inventory.ini.example
+# Note: inventory.ini is tracked in this fork for deployment convenience
+# Upstream uses inventory.ini.example instead
 
 # -----------------------------------------------------------------------------
-# Project Config (use .example versions)
+# Project Config
 # -----------------------------------------------------------------------------
-# These files contain deployment-specific configuration and should not be
-# committed to git. Copy the .example files and customize for your deployment.
-config/project.yml
-config/dns.yml
-config/secrets.yml
+# Note: These files are tracked in this fork for deployment convenience.
+# Upstream uses .example versions instead.
+# If contributing to upstream, ensure org-specific values don't leak.
 !config/project.yml.example
 !config/dns.yml.example
 !config/secrets.yml.example
